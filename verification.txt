@@ -1,0 +1,2 @@
+Total: 1420
+Counter({'Epic': 599, 'Amazon': 545, 'GOG': 390})
