@@ -9,9 +9,11 @@ A local, serverless web application to organize and view your game collection fr
 -   **Persistance**: Preserves manual edits (Notes, Played status, Ratings) across library updates.
 -   **Advanced UI**:
     -   Dark mode with modern gradients and animations.
-    -   Smart filtering (Platform, Genre, Played/Unplayed).
-    -   **Edit Mode**: Modify game details, ratings (0-100), and genres via a dedicated modal.
-    -   **Rating System**: Visual color-coded badges and slider input.
+    -   **Visual Stats**: Statistics Dashboard showing distributions for Genres, Platforms, Status, and Ratings.
+    -   **Smart Filtering**: Filter by Platform, Genre, and Played/Not Played status.
+    -   **Random Picker**: "Random Game" button helper to decide what to play next.
+    -   **Edit Mode**: Comprehensive editing via modal (Rating 0-100, Notes, Genres).
+    -   **Rich Visuals**: Local, high-quality platform logos and color-coded rating badges.
 
 ## Project Structure
 ```
@@ -26,27 +28,50 @@ A local, serverless web application to organize and view your game collection fr
 │   ├── epic_library.json
 │   ├── gog_library.json
 │   └── amazon_library.json
+├── logos/                  # Directory containing platform images (png)
 └── README.md               # This file
 ```
 
+## How to Use the Web Viewer
+
+1.  **Open `index.html`** in any modern web browser.
+2.  **Browsing**: Use the search bar or dropdown filters to find games.
+3.  **Editing**:
+    -   Click the **Pencil Icon** on any card to edit details.
+    -   **Rating**: Set a score from 0-100 using the slider or input box.
+    -   **Genres**: Add or remove genres.
+    -   **Notes**: Add personal notes.
+    -   **Status**: Toggle "Played" status directly from the card.
+4.  **Statistics**: Click the **Statistics** button to view charts of your library's composition. You can toggle between "Entire Library" and "Current Filter" to see specific stats.
+5.  **Saving Changes**: Click **Export JSON** to download the updated `merged_games.json`. **Overwrite the original file** in your project folder to save your changes permanently.
+
 ## How to Update Your Library
 
-### 1. Export Data
+### 1. Configure the Project
+1.  **Environment Setup**:
+    -   Copy `.env.example` (if provided) or create a `.env` file in the root directory.
+    -   Define the filenames of your source JSON files in `.env`:
+        ```ini
+        AMAZON_LIBRARY=my_amazon_games.json
+        EPIC_LIBRARY=my_epic_library.json
+        GOG_LIBRARY=my_gog_games.json
+        STEAM_LIBRARY=steam_output.json
+        ```
+    -   *Note: The script defaults to `amazon_library.json` etc., if no `.env` is found.*
+
+### 2. Export Data
 First, obtain your game library data in JSON format.
 -   **Steam**: Use [this API endpoint](https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=YOUR_API_KEY&steamid=YOUR_STEAM_ID&include_appinfo=1&format=json).
     -   Get your Steam ID from [steamid.io](https://steamid.io).
     -   Get an API Key from [Steam Community](https://steamcommunity.com/dev/apikey).
 -   **Epic, GOG, Amazon**: Export JSON files using **[Heroic Games Launcher](https://heroicgameslauncher.com/)**.
 
-### 2. Place Files
-Move your exported JSON files into the `sources/` folder:
--   `sources/steam_library.json`
--   `sources/epic_library.json`
--   `sources/gog_library.json`
--   `sources/amazon_library.json`
+### 3. Place Files
+Move your exported JSON files into the `sources/` folder. Ensure their names match what you defined in `.env`.
 
-### 3. Run Scripts
+### 4. Run Scripts
 Open a terminal in the project folder and run:
+
 
 1.  **Normalize & Merge**:
     ```bash

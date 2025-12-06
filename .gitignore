@@ -1,0 +1,8 @@
+merged_games.json
+merged_games.js
+sources/*.json
+!sources/example_library.json
+!sources/steam_library.json.example
+.env
+__pycache__/
+*.pyc

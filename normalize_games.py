@@ -114,10 +114,27 @@ def process_gog(data, games_map):
 
 def main():
     base_dir = '/mnt/secondisk/dev/GamesList'
+    # Load .env file
+    env_path = os.path.join(base_dir, '.env')
+    env_vars = {}
+    if os.path.exists(env_path):
+        print("Loading configuration from .env...")
+        with open(env_path, 'r') as f:
+            for line in f:
+                if '=' in line and not line.strip().startswith('#'):
+                    key, value = line.strip().split('=', 1)
+                    env_vars[key.strip()] = value.strip()
+    
+    # Get filenames from env or use defaults/placeholders
+    amazon_file = env_vars.get('AMAZON_LIBRARY', 'amazon_library.json')
+    epic_file = env_vars.get('EPIC_LIBRARY', 'epic_library.json')
+    gog_file = env_vars.get('GOG_LIBRARY', 'gog_library.json')
+    steam_file = env_vars.get('STEAM_LIBRARY', 'steam_library.json')
+
     files = {
-        'Amazon': os.path.join(base_dir, 'sources', 'amazon_library.json'),
-        'Epic': os.path.join(base_dir, 'sources', 'epic_library.json'),
-        'GOG': os.path.join(base_dir, 'sources', 'gog_library.json')
+        'Amazon': os.path.join(base_dir, 'sources', amazon_file),
+        'Epic': os.path.join(base_dir, 'sources', epic_file),
+        'GOG': os.path.join(base_dir, 'sources', gog_file)
     }
     
     # Map: normalized_title -> {title, platforms, genres, notes, played}
@@ -143,21 +160,21 @@ def main():
                         'rating': game.get('rating', None)
                     }
 
-    print("Loading Amazon...")
+    print(f"Loading Amazon ({amazon_file})...")
     amazon_data = load_json(files['Amazon'])
-    process_amazon(amazon_data, games_map)
+    if amazon_data: process_amazon(amazon_data, games_map)
     
-    print("Loading Epic...")
+    print(f"Loading Epic ({epic_file})...")
     epic_data = load_json(files['Epic'])
-    process_epic(epic_data, games_map)
+    if epic_data: process_epic(epic_data, games_map)
     
-    print("Loading GOG...")
+    print(f"Loading GOG ({gog_file})...")
     gog_data = load_json(files['GOG'])
-    process_gog(gog_data, games_map)
+    if gog_data: process_gog(gog_data, games_map)
     
-    print("Loading Steam...")
+    print(f"Loading Steam ({steam_file})...")
     try:
-        steam_path = os.path.join(base_dir, 'sources', 'steam_library.json')
+        steam_path = os.path.join(base_dir, 'sources', steam_file)
         if os.path.exists(steam_path):
             steam_data = load_json(steam_path)
             # Steam structure: {'response': {'games': [...]}}
