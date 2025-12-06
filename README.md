@@ -89,4 +89,4 @@ Open a terminal in the project folder and run:
 
 ## Credits & API
 -   **Steam API**: Used for fetching game usage data and genre information.
--   **Heroic Games Launcher**: Used for exporting libraries from other platforms.
+-   **Heroic Games Launcher**: Used for exporting libraries from other platforms. 
