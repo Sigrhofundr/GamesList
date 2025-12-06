@@ -44,6 +44,8 @@ A local, serverless web application to organize and view your game collection fr
     -   **Status**: Toggle "Played" status directly from the card.
 4.  **Statistics**: Click the **Statistics** button to view charts of your library's composition. You can toggle between "Entire Library" and "Current Filter" to see specific stats.
 5.  **Saving Changes**: Click **Export JSON** to download the updated `merged_games.json`. **Overwrite the original file** in your project folder to save your changes permanently.
+    > [!IMPORTANT]
+    > **After overwriting the JSON file**, you must run `python3 normalize_games.py` again! This step is crucial to update the `merged_games.js` file used by the browser and to align your edits with the source data.
 
 ## How to Update Your Library
 
