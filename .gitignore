@@ -1,8 +1,12 @@
 merged_games.json
 merged_games.js
+manual_enrich.py
 sources/*.json
 !sources/example_library.json
 !sources/steam_library.json.example
 .env
 __pycache__/
 *.pyc
+output.txt
+verify_result.txt
+unknowns_result.txt
