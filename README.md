@@ -1,96 +1,110 @@
 # Personal Game Library Manager
 
-A local, serverless web application to organize and view your game collection from multiple sources (Steam, Epic Games, GOG, Amazon).
+A versatile game collection manager that can be run in two modes:
+1.  **Serverless Web Viewer**: A simple, portable HTML file (Legacy).
+2.  **Home Server (Reccomended)**: A robust client-server application (React + FastAPI + MongoDB) designed for local network access (e.g. Raspberry Pi).
 
-## Features
--   **Unified Library**: Merges games from multiple JSON sources into a single view.
--   **Enriched Data**: Automatically fetches missing genres via Steam API.
--   **Local & Portable**: Runs directly in the browser (`index.html`), no backend server required.
--   **Persistance**: Preserves manual edits (Notes, Played status, Ratings) across library updates.
--   **Advanced UI**:
-    -   Dark mode with modern gradients and animations.
-    -   **Visual Stats**: Statistics Dashboard showing distributions for Genres, Platforms, Status, and Ratings.
--   **Smart Filtering**: Filter by Platform (including Microsoft), Genre, and Played/Not Played status.
--   **Full CRUD**: Add, Edit, and Delete games directly from the interface.
--   **Game Form**: Comprehensive modal to edit Title, Platform, Genres, Rating (0-100), Notes, and Status.
--   **Random Picker**: "Random Game" button helper to decide what to play next.
--   **Rich Visuals**: Local, high-quality platform logos and color-coded rating badges.
+## 🚀 Home Server Usage (Docker)
 
-## Project Structure
+The modern way to run GamesList. It provides a full web interface, persistent database, and API.
+
+### Prerequisites
+-   **Docker** and **Docker Compose** installed.
+
+### Quick Start (Local PC & Raspberry Pi)
+
+1.  **Clone the Repository**:
+    ```bash
+    git clone https://github.com/your/repo.git
+    cd GamesList
+    ```
+
+2.  **Start Services**:
+    This will build and launch the Frontend (React), Backend (Python FastAPI), Database (MongoDB), and Proxy (Nginx) automatically.
+    ```bash
+    docker-compose up -d --build
+    ```
+
+3.  **Access the App**:
+    Open your browser and navigate to:
+    -   **http://localhost:8090** (on Local PC)
+    -   **http://<RASPBERRY_IP>:8090** (on Network)
+
+### Data Migration
+To import your existing `merged_games.json` into the database:
+```bash
+# Copy the file into the backend container
+docker cp merged_games.json gameslist_api:/app/merged_games.json
+
+# Run the migration script
+docker exec -it gameslist_api python migrate_to_mongo.py
+```
+*(You only need to do this once)*
+
+---
+
+## 🛠 Project Structure (Server Mode)
+```
+/GamesList
+├── backend/                # FastAPI Application (Python)
+│   ├── main.py             # API Routes & Logic
+│   ├── migrate_to_mongo.py # Migration Script
+│   └── Dockerfile
+├── frontend/               # React Application (Vite)
+│   ├── src/                # React Components
+│   └── Dockerfile          # Multi-stage build (Node -> Nginx)
+├── nginx/                  # Nginx Configuration
+├── docker-compose.yml      # Container Orchestration
+└── ... (Legacy scripts)
+```
+
+---
+
+## 💻 Development (Local PC)
+If you want to modify the code:
+
+**Run Frontend in Dev Mode**:
+```bash
+cd frontend
+npm install
+npm run dev
+# App runs at http://localhost:5173
+```
+
+**Run Backend in Dev Mode**:
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload --port 5000
+# API runs at http://localhost:5000
+```
+
+---
+
+## 📂 Static/Legacy Mode
+*For purely local, file-based usage without Docker.*
+
+### Project Structure
 ```
 /GamesList
 ├── index.html              # Main application (open this in browser)
 ├── normalize_games.py      # Script to ingest and merge source JSONs
 ├── enrich_games.py         # Script to fetch missing genres from Steam
 ├── merged_games.json       # The master database file (generated)
-├── merged_games.js         # The JS version for local browser access (generated)
 ├── sources/                # Directory for your source library files
-│   ├── steam_library.json
-│   ├── epic_library.json
-│   ├── gog_library.json
-│   ├── amazon_library.json
-│   └── microsoft_library.json
-├── logos/                  # Directory containing platform images (png)
-└── README.md               # This file
+└── logos/                  # Directory containing platform images (png)
 ```
 
-## How to Use the Web Viewer
-
-1.  **Open `index.html`** in any modern web browser.
-2.  **Browsing**: Use the search bar or dropdown filters to find games.
-3.  **Adding Games**: Click the **+ FAB Button** (bottom-right) to manually add a new game.
-4.  **Editing**:
-    -   Click the **Pencil Icon** on any card to open the Edit form.
-    -   **Full Control**: You can now change proper titles, platforms, genres, ratings, and even DELETE games.
-5.  **Statistics**: Click the **Statistics** button to view charts of your library's composition. You can toggle between "Entire Library" and "Current Filter" to see specific stats.
-6.  **Saving Changes**: Click **Export JSON** to download the updated `merged_games.json`. **Overwrite the original file** in your project folder to save your changes permanently.
-    > [!IMPORTANT]
-    > **After overwriting the JSON file**, you must run `python3 normalize_games.py` again! This step is crucial to update the `merged_games.js` file used by the browser and to align your edits with the source data.
-
-## How to Update Your Library
-
-### 1. Configure the Project
-1.  **Environment Setup**:
-    -   Copy `.env.example` (if provided) or create a `.env` file in the root directory.
-    -   Define the filenames of your source JSON files in `.env` (optional, script has defaults):
-        ```ini
-        AMAZON_LIBRARY=my_amazon_games.json
-        EPIC_LIBRARY=my_epic_library.json
-        GOG_LIBRARY=my_gog_games.json
-        STEAM_LIBRARY=steam_output.json
-        MICROSOFT_LIBRARY=xbox_games.json
-        ```
-    -   *Note: The script defaults to `amazon_library.json` etc., if no `.env` is found.*
-
-### 2. Export Data
-First, obtain your game library data in JSON format.
--   **Steam**: Use [this API endpoint](https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=YOUR_API_KEY&steamid=YOUR_STEAM_ID&include_appinfo=1&format=json).
-    -   Get your Steam ID from [steamid.io](https://steamid.io).
-    -   Get an API Key from [Steam Community](https://steamcommunity.com/dev/apikey).
--   **Epic, GOG, Amazon**: Export JSON files using **[Heroic Games Launcher](https://heroicgameslauncher.com/)**.
--   **Microsoft**: Add your `microsoft_library.json` (format: `{"games": ["Title1", "Title2"]}`).
-
-### 3. Place Files
-Move your exported JSON files into the `sources/` folder.
-
-### 4. Run Scripts
-Open a terminal in the project folder and run:
-
-
-1.  **Normalize & Merge**:
+### How to Use
+1.  **Configure `.env`**: Define paths to your source JSON files (Amazon, Epic, etc.).
+2.  **Run Scripts**:
     ```bash
-    python3 normalize_games.py
+    python3 normalize_games.py  # Merges JSONs
+    python3 enrich_games.py     # Fetches genres from Steam
     ```
-    *This creates `merged_games.json`, preserving any manual edits you've made nicely.*
-
-2.  **Enrich (Optional but Recommended)**:
-    ```bash
-    python3 enrich_games.py
-    ```
-    *This searches Steam for missing genres. It skips games marked as "Unknown" to save time.*
-
-3.  **Done!** Open `index.html` to view your library.
+3.  **View**: Open `index.html` in your browser.
 
 ## Credits & API
 -   **Steam API**: Used for fetching game usage data and genre information.
--   **Heroic Games Launcher**: Used for exporting libraries from other platforms. 
+-   **Heroic Games Launcher**: Used for exporting libraries from other platforms.
+ 
