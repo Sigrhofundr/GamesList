@@ -26,14 +26,14 @@ services:
     networks:
       - games-net
 
-  nginx:
-    image: nginx:alpine
-    container_name: gameslist_proxy
+  frontend:
+    build: ./frontend
+    container_name: gameslist_frontend
     restart: unless-stopped
     ports:
-      - "8090:80" # Customs Port for the Home Server access
+      - "8090:80"
     volumes:
-      - ./frontend/dist:/usr/share/nginx/html # Mounts the React Build
+      # Mount the custom nginx config to overwrite the default one in the container
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - api
