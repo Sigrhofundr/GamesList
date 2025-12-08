@@ -4,8 +4,8 @@ import os
 import sys
 
 # Configuration
-MONGO_URI = "mongodb://localhost:27017/"
-DB_NAME = "games_library"
+MONGO_URI = os.getenv("MONGO_URL", "mongodb://localhost:27017/")
+DB_NAME = os.getenv("MONGO_DB_NAME", "games_library")
 COLLECTION_NAME = "games"
 JSON_FILE = "merged_games.json"
 
