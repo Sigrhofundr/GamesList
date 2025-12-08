@@ -50,6 +50,7 @@
             margin: 0 0 30px 0;
             background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 700;
             letter-spacing: -1px;
@@ -168,6 +169,19 @@
             background: rgba(255, 255, 255, 0.05);
         }
 
+        .platform-icon.amazon {
+            background-image: url('logos/amazon_logo.png');
+        }
+
+        .platform-icon.microsoft {
+            background-image: url('logos/microsoft_logo.png');
+        }
+
+        /* Generic backup if needed */
+        .platform-icon.other {
+            background-color: #555;
+        }
+
         /* Stats Bar */
         .stats-bar {
             margin-top: 15px;
@@ -274,6 +288,7 @@
             /* Standards compliant */
             -webkit-background-clip: text;
             -webkit-line-clamp: 2;
+            line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
@@ -520,6 +535,7 @@
 
         input[type="range"] {
             -webkit-appearance: none;
+            appearance: none;
             width: 100%;
             height: 6px;
             background: #333;
@@ -757,8 +773,9 @@
                     <option value="all">All Platforms</option>
                     <option value="Steam">Steam</option>
                     <option value="Amazon">Amazon</option>
-                    <option value="Epic">Epic</option>
+                    <option value="Epic">Epic Games</option>
                     <option value="GOG">GOG</option>
+                    <option value="Microsoft">Microsoft</option>
                 </select>
                 <select id="genreFilter" style="flex-grow: 0.5;">
                     <option value="all">All Genres</option>
@@ -791,6 +808,13 @@
         <div id="gameGrid" class="game-grid" style="display: none;"></div>
     </div>
 
+    <!-- FAB Add Button -->
+    <button id="addGameBtn" class="fab-btn" title="Add Game">
+        <svg viewBox="0 0 24 24" fill="white" width="32" height="32">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+        </svg>
+    </button>
+
     <!-- Random Game Modal -->
     <div class="modal-overlay" id="randomModal">
         <div class="modal-content" style="text-align: center;">
@@ -804,6 +828,63 @@
                 <button class="btn-cancel" onclick="closeRandomModal()">Close</button>
                 <button class="btn-action" style="min-width: auto; padding: 10px 20px; font-size: 0.9rem;"
                     onclick="pickRandomGame()">Try Another</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generic Game Form Modal (Add/Edit) -->
+    <div id="gameFormModal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-modal" id="closeGameForm">&times;</span>
+            <h2 id="gameFormTitle">Edit Game</h2>
+
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" id="gameTitleInput" class="full-width">
+            </div>
+
+            <div class="form-group">
+                <label>Platform</label>
+                <select id="gamePlatformInput" class="full-width">
+                    <option value="Steam">Steam</option>
+                    <option value="Epic">Epic</option>
+                    <option value="Amazon">Amazon</option>
+                    <option value="GOG">GOG</option>
+                    <option value="Microsoft">Microsoft</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Rating (0-100)</label>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <input type="range" id="gameRatingSlider" min="0" max="100" value="0" style="flex-grow: 1;">
+                    <input type="number" id="gameRatingValue" min="0" max="100" style="width: 60px;">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Genres (comma separated)</label>
+                <input type="text" id="gameGenresInput" class="full-width" placeholder="Action, RPG, Adventure...">
+            </div>
+
+            <div class="form-group">
+                <label>Notes</label>
+                <textarea id="gameNotesInput" rows="4" class="full-width"></textarea>
+            </div>
+
+            <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                <label>Status:</label>
+                <label class="switch">
+                    <input type="checkbox" id="gamePlayedInput">
+                    <span class="slider round"></span>
+                </label>
+                <span id="gamePlayedLabel">Not Played</span>
+            </div>
+
+            <div class="modal-actions" style="justify-content: space-between; margin-top: 20px;">
+                <button id="deleteGameBtn" class="btn warning-btn" style="background: #ff4444;">Delete Game</button>
+                <button id="saveGameBtn" class="btn primary-btn">Save Changes</button>
             </div>
         </div>
     </div>
@@ -852,52 +933,7 @@
         </div>
     </div>
 
-    <!-- Edit Modal -->
-    <div class="modal-overlay" id="editModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-label">Editing</div>
-                <div class="modal-game-title" id="editGameTitle">Game Title</div>
-            </div>
 
-            <div class="modal-section">
-                <label class="modal-label">Rating (0-100)</label>
-                <div class="rating-wrapper">
-                    <div style="flex-grow: 1;">
-                        <input type="range" id="editRatingSlider" min="0" max="100" value="0" style="width: 100%;">
-                        <div
-                            style="display: flex; justify-content: space-between; font-size: 0.7rem; color: #666; margin-top: 5px;">
-                            <span>0</span><span>50</span><span>100</span>
-                        </div>
-                    </div>
-                    <div style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
-                        <span id="ratingLargeDisplay">ND</span>
-                        <input type="number" id="editRatingValue" min="0" max="100" placeholder="Set"
-                            style="width: 50px; background: transparent; border: 1px solid #444; color: #aaa; text-align: center; font-size: 0.8rem; border-radius: 4px;">
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-section">
-                <label class="modal-label">Genres</label>
-                <div class="genres-list" id="editGenresList" style="margin-bottom:10px;"></div>
-                <div style="display:flex; gap:10px;">
-                    <input type="text" id="newGenreInput" placeholder="Add genre..." style="padding: 8px;">
-                    <button class="btn-edit" onclick="addGenreFromModal()">Add</button>
-                </div>
-            </div>
-
-            <div class="modal-section">
-                <label class="modal-label">Notes</label>
-                <textarea id="editNotes" placeholder="Personal notes..."></textarea>
-            </div>
-
-            <div class="modal-actions">
-                <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
-                <button class="btn-save" onclick="saveEditModal()">Save Changes</button>
-            </div>
-        </div>
-    </div>
 
     <!-- Load data as a global variable window.gamesData -->
     <script src="merged_games.js"></script>
@@ -921,14 +957,7 @@
         // Random Modal
         const randomModal = document.getElementById('randomModal');
 
-        // Edit Modal
-        const editModal = document.getElementById('editModal');
-        const editGameTitle = document.getElementById('editGameTitle');
-        const editRatingSlider = document.getElementById('editRatingSlider');
-        const editRatingValue = document.getElementById('editRatingValue');
-        const editGenresList = document.getElementById('editGenresList');
-        const newGenreInput = document.getElementById('newGenreInput');
-        const editNotes = document.getElementById('editNotes');
+
 
         // Load Data
         function loadGames() {
@@ -1012,7 +1041,7 @@
             const displayLimit = 200;
             const gamesToShow = games.slice(0, displayLimit);
 
-            gamesToShow.forEach(game => {
+            gamesToShow.forEach((game, index) => {
                 const card = document.createElement('div');
                 card.className = `game-card ${game.played ? 'played-true' : ''}`;
 
@@ -1029,19 +1058,16 @@
 
                 const ratingDisplay = game.rating !== null ? game.rating : "ND";
                 const ratingBg = getRatingColor(game.rating);
-                // Safe title for onclick
+                // Safe title for onclick (legacy, now using index)
                 const safeTitle = game.title.replace(/'/g, "\\'");
-
-                // Layout: Rating Badge Top Right
-                // Title
-                // Meta: Platforms (Icons), Genres
-                // Footer: Toggle (left), Edit Pencil (right)
+                // Display Title Logic
+                const displayTitle = game.custom_title || game.title;
 
                 card.innerHTML = `
-                <div class="rating-badge" style="background:${ratingBg}" onclick="openEditModal('${safeTitle}')">${ratingDisplay}</div>
+                <div class="rating-badge" style="background:${ratingBg}" onclick="openGameForm(${index})">${ratingDisplay}</div>
                 
                 <div class="game-header">
-                    <div class="game-title" title="${game.title}">${game.title}</div>
+                    <div class="game-title" title="${displayTitle}">${displayTitle}</div>
                 </div>
                 
                 <div class="card-meta">
@@ -1057,7 +1083,7 @@
                         </label>
                         <span style="font-size:0.8rem; color:#aaa; margin-left: 8px;">Played</span>
                      </div>
-                     <button class="edit-icon-btn" title="Edit Details" onclick="openEditModal('${safeTitle}')">
+                     <button class="edit-icon-btn" title="Edit Details" onclick="openGameForm(${index})">
                         <svg class="icon" style="width:20px; height:20px;"><use href="#icon-pencil"></use></svg>
                      </button>
                 </div>
@@ -1078,7 +1104,8 @@
 
         // Logic Actions
         function findGame(title) {
-            return allGames.find(g => g.title === title);
+            // Find by exact title or custom_title (though internal loops use exact title usually)
+            return allGames.find(g => g.title === title || g.custom_title === title);
         }
 
         window.togglePlayed = function (title, checked) {
@@ -1099,134 +1126,145 @@
 
         // Edit Modal Logic
 
-        window.openEditModal = function (gameObj) { // Changed to accept game object directly
-            const game = typeof gameObj === 'string' ? findGame(gameObj) : gameObj; // Handle both title string and game object
-            if (!game) return;
 
-            currentGameEditing = game.title;
-            editGameTitle.textContent = game.title;
 
-            // Rating
-            if (game.rating !== null) {
-                editRatingSlider.value = game.rating;
-                editRatingValue.value = game.rating;
-                updateRatingVisuals(game.rating);
+        // CRUD Logic
+        let editingGameIndex = null;
+
+        const fabBtn = document.getElementById('addGameBtn');
+        const gameFormModal = document.getElementById('gameFormModal');
+        const closeGameForm = document.getElementById('closeGameForm');
+        const saveGameBtn = document.getElementById('saveGameBtn');
+        const deleteGameBtn = document.getElementById('deleteGameBtn');
+
+        const gameTitleInput = document.getElementById('gameTitleInput');
+        const gamePlatformInput = document.getElementById('gamePlatformInput');
+        const gameRatingSlider = document.getElementById('gameRatingSlider');
+        const gameRatingValue = document.getElementById('gameRatingValue');
+        const gameGenresInput = document.getElementById('gameGenresInput');
+        const gameNotesInput = document.getElementById('gameNotesInput');
+        const gamePlayedInput = document.getElementById('gamePlayedInput');
+        const gameFormTitle = document.getElementById('gameFormTitle');
+
+        // Open Modal
+        function openGameForm(index = null) {
+            editingGameIndex = index;
+            // Use active class for transition
+            gameFormModal.classList.add('active');
+
+            if (index === null) {
+                // ADD MODE
+                gameFormTitle.textContent = "Add New Game";
+                deleteGameBtn.style.display = 'none';
+
+                // Clear fields
+                gameTitleInput.value = "";
+                gamePlatformInput.value = "Microsoft"; // Default
+                gameRatingSlider.value = 0;
+                gameRatingValue.value = "";
+                gameGenresInput.value = "";
+                gameNotesInput.value = "";
+                gamePlayedInput.checked = false;
             } else {
-                editRatingSlider.value = 0; // Default slider pos
-                editRatingValue.value = ""; // Show empty/placeholder
-                updateRatingVisuals(null);
+                // EDIT MODE
+                gameFormTitle.textContent = "Edit Game";
+                deleteGameBtn.style.display = 'block';
+
+                const game = filteredGames[index];
+
+                gameTitleInput.value = game.custom_title || game.title;
+                gamePlatformInput.value = game.platforms && game.platforms.length > 0 ? game.platforms[0] : "Other";
+
+                const r = game.rating !== null ? game.rating : 0;
+                gameRatingSlider.value = r;
+                gameRatingValue.value = game.rating !== null ? r : "";
+
+                gameGenresInput.value = game.genres ? game.genres.join(", ") : "";
+                gameNotesInput.value = game.notes || "";
+                gamePlayedInput.checked = game.played || false;
             }
-
-            // Notes
-            editNotes.value = game.notes || "";
-
-            // Genres
-            renderEditGenres(game.genres);
-
-            editModal.classList.add('active');
+            // updateRatingVisualsInForm(); // Not implemented yet, logic is below
         }
 
-        function renderEditGenres(genres) {
-            if (!genres || genres.length === 0) {
-                editGenresList.innerHTML = '<span style="color:#aaa; font-style:italic;">No genres</span>';
-                return;
-            }
-            editGenresList.innerHTML = genres.map(g =>
-                `<span class="genre-tag editable-genre-tag" onclick="removeGenreFromModal('${g}')">${g}</span>`
-            ).join('');
+        function closeForm() {
+            gameFormModal.classList.remove('active');
         }
 
-        window.removeGenreFromModal = function (genre) {
-            const game = findGame(currentGameEditing);
-            if (game) {
-                game.genres = game.genres.filter(g => g !== genre);
-                renderEditGenres(game.genres);
-            }
+        function updateRatingVisualsInForm() {
+            // reused logic or keep simple
         }
 
-        window.addGenreFromModal = function () {
-            const val = newGenreInput.value.trim();
-            if (!val) return;
+        // Logic to sync slider/input
+        gameRatingSlider.addEventListener('input', (e) => gameRatingValue.value = e.target.value);
+        gameRatingValue.addEventListener('input', (e) => gameRatingSlider.value = e.target.value);
 
-            const game = findGame(currentGameEditing);
-            if (game) {
-                // Remove Sconosciuto if present
-                if (game.genres.includes("Sconosciuto")) {
-                    game.genres = game.genres.filter(g => g !== "Sconosciuto");
-                }
-                if (!game.genres.includes(val)) {
-                    game.genres.push(val);
-                    game.genres.sort();
-                    renderEditGenres(game.genres);
-                }
-                newGenreInput.value = "";
-            }
-        }
+        // Save
+        saveGameBtn.addEventListener('click', () => {
+            const newGame = {
+                title: gameTitleInput.value,
+                platforms: [gamePlatformInput.value],
+                genres: gameGenresInput.value.split(',').map(s => s.trim()).filter(s => s),
+                notes: gameNotesInput.value,
+                played: gamePlayedInput.checked,
+                rating: gameRatingValue.value === "" ? null : parseInt(gameRatingValue.value)
+            };
 
-        window.closeEditModal = function () {
-            editModal.classList.remove('active');
-            currentGameEditing = null;
-        }
+            if (editingGameIndex !== null) {
+                // Update Existing
+                // We need to find the specific object in gamesData and update it.
+                // Using the reference from filteredGames is risky for replacement, but safe for field update.
+                const gameRef = filteredGames[editingGameIndex];
 
-        window.saveEditModal = function () {
-            const game = findGame(currentGameEditing);
-            if (game) {
-                // Save Notes
-                game.notes = editNotes.value;
-
-                // Save Rating
-                const rVal = editRatingValue.value;
-                if (rVal === "") {
-                    game.rating = null;
-                } else {
-                    let n = parseInt(rVal);
-                    if (n < 0) n = 0;
-                    if (n > 100) n = 100;
-                    game.rating = n;
+                // Update fields
+                // Rename logic: update custom_title, match title if completely new
+                if (newGame.title !== gameRef.title && newGame.title !== gameRef.custom_title) {
+                    gameRef.custom_title = newGame.title;
                 }
 
-                // Genres already modified in-place
-                if (game.genres.length === 0) game.genres.push("Sconosciuto");
+                gameRef.platforms = newGame.platforms;
+                gameRef.genres = newGame.genres;
+                gameRef.notes = newGame.notes;
+                gameRef.played = newGame.played;
+                gameRef.rating = newGame.rating;
 
-                // Refresh
-                closeEditModal();
-                updateGenreOptions(); // In case new genres added
-                renderGames(filteredGames); // Refresh view
-            }
-        }
-
-        // Rating Control Logic
-        const ratingLargeDisplay = document.getElementById('ratingLargeDisplay');
-
-        function updateRatingVisuals(val) {
-            if (val === "" || val === null) {
-                ratingLargeDisplay.textContent = "ND";
-                ratingLargeDisplay.style.color = "#555";
             } else {
-                ratingLargeDisplay.textContent = val;
-                ratingLargeDisplay.style.color = getRatingColor(val);
+                // Add New
+                // New games just set title. custom_title can be null or same.
+                gamesData.push(newGame);
             }
-        }
 
-        editRatingSlider.addEventListener('input', (e) => {
-            const val = e.target.value;
-            editRatingValue.value = val;
-            updateRatingVisuals(val);
+            closeForm();
+            closeForm();
+            filterGames(); // Re-filter and render
+            updateGenreOptions(); // Refresh genres
         });
 
-        editRatingValue.addEventListener('input', (e) => {
-            let val = e.target.value;
-            if (val !== "") {
-                if (val > 100) val = 100;
-                if (val < 0) val = 0;
-                editRatingSlider.value = val;
-                updateRatingVisuals(val);
-            } else {
-                updateRatingVisuals(null);
+        // Delete
+        deleteGameBtn.addEventListener('click', () => {
+            if (editingGameIndex !== null && confirm("Delete this game? This cannot be undone.")) {
+                const gameRef = filteredGames[editingGameIndex];
+
+                // Soft Delete: Mark as deleted so it persists in export and script knows to ignore it
+                const globalIndex = gamesData.indexOf(gameRef);
+                if (globalIndex > -1) {
+                    gamesData[globalIndex].deleted = true;
+                }
+
+                closeForm();
+                closeForm();
+                filterGames();
+                updateGenreOptions();
             }
         });
 
-        // Reset/Init logic in openEditModal
+        // FAB Click
+        fabBtn.addEventListener('click', () => openGameForm(null));
+        closeGameForm.addEventListener('click', closeForm);
+
+        // Override the old "editBtn" click logic in renderGames to use this new modal
+        // We will update renderGames to call openGameForm(index) instead of openEditModal
+
+        // ... (previous code)
 
 
         function filterGames() {
@@ -1236,14 +1274,15 @@
             const selectedPlayed = playedFilter.value;
 
             filteredGames = allGames.filter(game => {
-                const matchesSearch = game.title.toLowerCase().includes(searchTerm);
+                const displayTitle = (game.custom_title || game.title).toLowerCase();
+                const matchesSearch = displayTitle.includes(searchTerm);
                 const matchesPlatform = selectedPlatform === 'all' || game.platforms.includes(selectedPlatform);
                 const matchesGenre = selectedGenre === 'all' || game.genres.includes(selectedGenre);
                 const matchesPlayed = selectedPlayed === 'all'
                     ? true
                     : (selectedPlayed === 'true' ? game.played : !game.played);
 
-                return matchesSearch && matchesPlatform && matchesGenre && matchesPlayed;
+                return matchesSearch && matchesPlatform && matchesGenre && matchesPlayed && !game.deleted;
             });
 
             renderGames(filteredGames);
@@ -1297,14 +1336,12 @@
             if (e.target === randomModal) closeRandomModal();
         });
 
-        editModal.addEventListener('click', (e) => {
-            if (e.target === editModal) closeEditModal();
-        });
+
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeRandomModal();
-                closeEditModal();
+                closeForm();
             }
         });
 

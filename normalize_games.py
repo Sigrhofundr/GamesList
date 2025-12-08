@@ -153,6 +153,7 @@ def main():
                 if norm_title:
                     games_map[norm_title] = {
                         'title': game.get('title'),
+                        'custom_title': game.get('custom_title', None), # Preserved renamaing
                         'platforms': set(game.get('platforms', [])),
                         'genres': set(game.get('genres', [])),
                         'notes': game.get('notes', ""),
@@ -171,7 +172,29 @@ def main():
     print(f"Loading GOG ({gog_file})...")
     gog_data = load_json(files['GOG'])
     if gog_data: process_gog(gog_data, games_map)
+
+    # PROCESS MICROSOFT
+    microsoft_file = env_vars.get('MICROSOFT_LIBRARY', 'microsoft_library.json')
+    files['Microsoft'] = os.path.join(base_dir, 'sources', microsoft_file)
+    print(f"Loading Microsoft ({microsoft_file})...")
     
+    ms_data = load_json(files['Microsoft'])
+    if ms_data and 'games' in ms_data:
+        print(f"Loaded {len(ms_data['games'])} Microsoft games.")
+        for game_title in ms_data['games']:
+            norm_title = normalize_title(game_title)
+            
+            if norm_title not in games_map:
+                games_map[norm_title] = {
+                    'title': game_title,
+                    'platforms': set(),
+                    'genres': set(), # No genres in MS export
+                    'notes': "",
+                    'played': False,
+                    'rating': None
+                }
+            games_map[norm_title]['platforms'].add('Microsoft')
+
     print(f"Loading Steam ({steam_file})...")
     try:
         steam_path = os.path.join(base_dir, 'sources', steam_file)
@@ -239,6 +262,8 @@ def main():
             game['played'] = False
         if 'rating' not in game:
             game['rating'] = None
+        if 'custom_title' not in game:
+            game['custom_title'] = None
             
         output_list.append(game)
     
