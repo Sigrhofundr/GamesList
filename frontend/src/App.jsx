@@ -4,6 +4,8 @@ import GameGrid from './components/GameGrid';
 import { Pencil, Plus, Dice5, Download, BarChart2 } from 'lucide-react';
 import './index.css';
 
+import GameForm from './components/GameForm';
+
 function App() {
     const [games, setGames] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -15,6 +17,8 @@ function App() {
     });
     const [genres, setGenres] = useState([]);
     const [statsOpen, setStatsOpen] = useState(false);
+    const [editingGame, setEditingGame] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     // Load Games
     const fetchGames = async () => {
@@ -65,7 +69,41 @@ function App() {
     };
 
     const openGameForm = (game) => {
-        alert("Edit Modal to be implemented in next step: " + (game ? game.title : "New Game"));
+        setEditingGame(game);
+        setIsModalOpen(true);
+    };
+
+    const closeGameForm = () => {
+        setEditingGame(null);
+        setIsModalOpen(false);
+    };
+
+    const handleSaveGame = async (gameData) => {
+        try {
+            if (editingGame) {
+                await api.put(`/games/${editingGame._id}`, gameData);
+            } else {
+                await api.post('/games', gameData);
+            }
+            closeGameForm();
+            fetchGames();
+        } catch (error) {
+            console.error("Failed to save game", error);
+            alert("Error saving game");
+        }
+    };
+
+    const handleDeleteGame = async (game) => {
+        if (!window.confirm(`Are you sure you want to delete "${game.title}"?`)) return;
+
+        try {
+            await api.delete(`/games/${game._id}`);
+            closeGameForm();
+            fetchGames();
+        } catch (error) {
+            console.error("Failed to delete game", error);
+            alert("Error deleting game");
+        }
     };
 
     const pickRandomGame = () => {
@@ -152,6 +190,15 @@ function App() {
             <button className="fab-btn" title="Add Game" onClick={() => openGameForm(null)}>
                 <Plus size={32} />
             </button>
+
+            {isModalOpen && (
+                <GameForm
+                    game={editingGame}
+                    onClose={closeGameForm}
+                    onSave={handleSaveGame}
+                    onDelete={handleDeleteGame}
+                />
+            )}
         </div>
     );
 }
