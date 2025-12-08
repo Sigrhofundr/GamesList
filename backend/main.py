@@ -74,13 +74,20 @@ async def shutdown_db_client():
 async def read_root():
     return {"message": "GamesList API is running"}
 
-@app.get("/games", response_model=List[GameModel], tags=["Games"])
+class PaginatedGameResponse(BaseModel):
+    items: List[GameModel]
+    total: int
+    skip: int
+    limit: int
+
+@app.get("/games", response_model=PaginatedGameResponse, tags=["Games"])
 async def list_games(
     search: Optional[str] = None,
     platform: Optional[str] = None,
     genre: Optional[str] = None,
     played: Optional[bool] = None,
-    limit: int = 1000
+    skip: int = 0,
+    limit: int = 100
 ):
     query = {"deleted": {"$ne": True}}
 
@@ -100,9 +107,16 @@ async def list_games(
     if played is not None:
         query["played"] = played
 
-    games_cursor = app.mongodb[COLLECTION_NAME].find(query).limit(limit)
+    total = await app.mongodb[COLLECTION_NAME].count_documents(query)
+    games_cursor = app.mongodb[COLLECTION_NAME].find(query).skip(skip).limit(limit)
     games = await games_cursor.to_list(length=limit)
-    return games
+    
+    return {
+        "items": games,
+        "total": total,
+        "skip": skip,
+        "limit": limit
+    }
 
 @app.post("/games", response_model=GameModel, tags=["Games"])
 async def create_game(game: GameModel):
