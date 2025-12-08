@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import api from './api';
 import GameGrid from './components/GameGrid';
+import GameForm from './components/GameForm';
 import { Pencil, Plus, Dice5, Download, BarChart2 } from 'lucide-react';
 import './index.css';
-
-import GameForm from './components/GameForm';
 
 function App() {
     const [games, setGames] = useState([]);
@@ -19,27 +18,44 @@ function App() {
     const [statsOpen, setStatsOpen] = useState(false);
     const [editingGame, setEditingGame] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [totalGames, setTotalGames] = useState(0);
 
     // Load Games
-    const fetchGames = async () => {
+    const fetchGames = async (isLoadMore = false) => {
         setLoading(true);
         try {
-            const params = {};
+            const params = {
+                limit: 100,
+                skip: isLoadMore ? games.length : 0
+            };
+
             if (filters.search) params.search = filters.search;
             if (filters.platform !== 'all') params.platform = filters.platform;
             if (filters.genre !== 'all') params.genre = filters.genre;
             if (filters.played !== 'all') params.played = filters.played === 'true';
 
             const response = await api.get('/games', { params });
-            setGames(response.data);
 
-            // Update genres list from data if needed (or fetch distinct genres from backend)
-            // For now, let's derive from current list or a separate endpoint if we implement one.
-            // Optimally backend should provide /genres endpoint. 
-            // We'll derive locally for simplicity matching old logic.
+            // Response structure: { items: [], total: 1000, skip: 0, limit: 100 }
+            const newGames = response.data.items;
+            setTotalGames(response.data.total);
+
+            if (isLoadMore) {
+                setGames(prev => [...prev, ...newGames]);
+            } else {
+                setGames(newGames);
+            }
+
+            // Update genres
             const allGenres = new Set();
-            response.data.forEach(g => g.genres.forEach(gen => allGenres.add(gen)));
-            setGenres(Array.from(allGenres).sort());
+            if (!isLoadMore) {
+                newGames.forEach(g => g.genres.forEach(gen => allGenres.add(gen)));
+                setGenres(Array.from(allGenres).sort());
+            } else {
+                const currentGenres = new Set(genres);
+                newGames.forEach(g => g.genres.forEach(gen => currentGenres.add(gen)));
+                setGenres(Array.from(currentGenres).sort());
+            }
 
         } catch (error) {
             console.error("Error fetching games:", error);
@@ -49,7 +65,7 @@ function App() {
     };
 
     useEffect(() => {
-        fetchGames();
+        fetchGames(false);
     }, [filters]);
 
     const handleFilterChange = (key, value) => {
@@ -58,13 +74,11 @@ function App() {
 
     const togglePlayed = async (game, checked) => {
         try {
-            // Optimistic update
             setGames(prev => prev.map(g => g._id === game._id ? { ...g, played: checked } : g));
-
             await api.put(`/games/${game._id}`, { played: checked });
         } catch (error) {
             console.error("Failed to update status", error);
-            fetchGames(); // Revert on error
+            fetchGames();
         }
     };
 
@@ -86,7 +100,7 @@ function App() {
                 await api.post('/games', gameData);
             }
             closeGameForm();
-            fetchGames();
+            fetchGames(false); // Reload all
         } catch (error) {
             console.error("Failed to save game", error);
             alert("Error saving game");
@@ -99,7 +113,7 @@ function App() {
         try {
             await api.delete(`/games/${game._id}`);
             closeGameForm();
-            fetchGames();
+            fetchGames(false); // Reload all
         } catch (error) {
             console.error("Failed to delete game", error);
             alert("Error deleting game");
@@ -175,17 +189,30 @@ function App() {
                 </button>
 
                 <div className="stats-bar">
-                    <span>{games.length} games found</span>
+                    <span>Showing {games.length} of {totalGames} games</span>
                     <span style={{ fontSize: '0.8rem', opacity: 0.7 }}>Click "Edit" on a card to modify details.</span>
                 </div>
             </header>
 
             <GameGrid
                 games={games}
-                loading={loading}
+                loading={loading && games.length === 0}
                 onEdit={openGameForm}
                 onTogglePlayed={togglePlayed}
             />
+
+            {games.length < totalGames && (
+                <div style={{ display: 'flex', justifyContent: 'center', margin: '30px 0 80px 0' }}>
+                    <button
+                        className="btn-action"
+                        onClick={() => fetchGames(true)}
+                        disabled={loading}
+                        style={{ minWidth: '200px' }}
+                    >
+                        {loading ? 'Loading...' : `Load More (${totalGames - games.length} remaining)`}
+                    </button>
+                </div>
+            )}
 
             <button className="fab-btn" title="Add Game" onClick={() => openGameForm(null)}>
                 <Plus size={32} />
