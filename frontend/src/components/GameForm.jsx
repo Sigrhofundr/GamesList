@@ -101,7 +101,7 @@ const GameForm = ({ game, onClose, onSave, onDelete }) => {
                                 max="100"
                                 value={formData.rating === '' ? 0 : formData.rating}
                                 onChange={handleChange}
-                                style={{ flexGrow: 1 }}
+                                style={{ flexGrow: 1, cursor: 'pointer' }}
                             />
                             <input
                                 type="number"
@@ -111,7 +111,7 @@ const GameForm = ({ game, onClose, onSave, onDelete }) => {
                                 value={formData.rating}
                                 onChange={handleChange}
                                 placeholder="ND"
-                                style={{ width: '60px', textAlign: 'center' }}
+                                style={{ width: '60px', textAlign: 'center', flexShrink: 0 }}
                             />
                             <button
                                 type="button"
@@ -123,7 +123,12 @@ const GameForm = ({ game, onClose, onSave, onDelete }) => {
                                     color: '#aaa',
                                     borderRadius: '5px',
                                     cursor: 'pointer',
-                                    padding: '5px'
+                                    width: '36px',
+                                    height: '36px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    flexShrink: 0
                                 }}
                             >
                                 <X size={16} />
