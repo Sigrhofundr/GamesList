@@ -107,7 +107,7 @@ const GameForm = ({ game, onClose, onSave, onDelete }) => {
                                 max="100"
                                 value={formData.rating === '' ? 0 : formData.rating}
                                 onChange={handleChange}
-                                style={{ flexGrow: 1, cursor: 'pointer', height: '6px' }}
+                                style={{ flexGrow: 1, cursor: 'pointer', height: '6px', width: 'auto' }}
                             />
 
                             <button
@@ -129,7 +129,8 @@ const GameForm = ({ game, onClose, onSave, onDelete }) => {
                                     transition: 'all 0.2s',
                                     fontSize: '0.7rem',
                                     fontWeight: '600',
-                                    textTransform: 'uppercase'
+                                    textTransform: 'uppercase',
+                                    width: 'auto'
                                 }}
                                 onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255, 71, 87, 0.2)'; }}
                                 onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255, 71, 87, 0.1)'; }}
