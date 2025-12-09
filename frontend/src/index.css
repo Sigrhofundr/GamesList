@@ -393,3 +393,146 @@ input:checked+.slider:before {
 .fab-btn:hover {
     transform: scale(1.1) rotate(90deg);
 }
+
+/* Updated Modal Styles */
+.modal-content {
+    background: var(--surface-color);
+    padding: 40px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 600px;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.close-modal {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255,255,255,0.1);
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #aaa;
+    transition: all 0.2s;
+    float: none; /* Override previous float */
+}
+.close-modal:hover { 
+    color: #fff; 
+    background: rgba(255,255,255,0.2);
+}
+
+/* Statistics Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 700px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.stat-card {
+    background: rgba(255,255,255,0.03);
+    padding: 20px;
+    border-radius: 15px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.stat-card.full-width {
+    grid-column: 1 / -1;
+}
+
+.stat-card h3 {
+    margin-top: 0;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    color: #ddd;
+}
+
+.stat-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.stat-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+}
+
+.stat-label {
+    width: 80px;
+    color: #aaa;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.stat-bar-container {
+    flex-grow: 1;
+    height: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.stat-bar {
+    height: 100%;
+    background: var(--primary-accent);
+    border-radius: 4px;
+}
+
+.stat-value {
+    width: 30px;
+    text-align: right;
+    font-weight: bold;
+}
+
+.completion-bar {
+    display: flex;
+    height: 30px;
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 30px;
+    color: white;
+    text-align: center;
+}
+
+.played-segment {
+    background: linear-gradient(90deg, #00C853, #69F0AE);
+}
+
+.unplayed-segment {
+    background: rgba(255,255,255,0.1);
+}
+
+/* Random Modal Specifics */
+.random-result {
+    animation: fadeInUp 0.5s ease;
+}
+.error-msg {
+    color: #ff4757;
+    background: rgba(255, 71, 87, 0.1);
+    padding: 10px;
+    border-radius: 8px;
+}

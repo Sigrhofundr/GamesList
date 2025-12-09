@@ -65,7 +65,7 @@ const GameCard = ({ game, onEdit, onTogglePlayed }) => {
                 </div>
             </div>
 
-            <div className="card-footer">
+            <div className="card-footer" style={{ borderTop: 'none', paddingTop: '10px' }}>
                 <div className="played-toggle-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <label className="switch">
                         <input
@@ -77,15 +77,27 @@ const GameCard = ({ game, onEdit, onTogglePlayed }) => {
                     </label>
                     <span style={{ fontSize: '0.8rem', color: '#aaa' }}>Played</span>
                 </div>
-
-                <button
-                    className="action-btn-icon"
-                    title="Edit Details"
-                    onClick={() => onEdit(game)}
-                >
-                    <Pencil size={20} />
-                </button>
             </div>
+
+            <button
+                className="action-btn-icon"
+                title="Edit Details"
+                onClick={() => onEdit(game)}
+                style={{
+                    position: 'absolute',
+                    bottom: '15px',
+                    right: '15px',
+                    background: 'rgba(255,255,255,0.05)',
+                    borderRadius: '50%',
+                    width: '32px',
+                    height: '32px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}
+            >
+                <Pencil size={16} />
+            </button>
         </div>
     );
 };

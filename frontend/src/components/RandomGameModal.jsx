@@ -38,7 +38,7 @@ const RandomGameModal = ({ onClose, filters }) => {
                 <button className="close-modal" onClick={onClose}><X /></button>
 
                 <h2 style={{ marginTop: 0, marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-                    <Dice5 /> Random Pick
+                    <Dice5 /> Random Game
                 </h2>
 
                 {loading && <div className="loading-spinner">Picking a game...</div>}
