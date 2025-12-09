@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import api from './api';
 import GameGrid from './components/GameGrid';
 import GameForm from './components/GameForm';
+import StatsModal from './components/StatsModal';
+import RandomGameModal from './components/RandomGameModal';
 import { Pencil, Plus, Dice5, Download, BarChart2 } from 'lucide-react';
 import './index.css';
 
@@ -16,6 +18,7 @@ function App() {
     });
     const [genres, setGenres] = useState([]);
     const [statsOpen, setStatsOpen] = useState(false);
+    const [randomOpen, setRandomOpen] = useState(false);
     const [editingGame, setEditingGame] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [totalGames, setTotalGames] = useState(0);
@@ -120,12 +123,6 @@ function App() {
         }
     };
 
-    const pickRandomGame = () => {
-        if (games.length === 0) return;
-        const random = games[Math.floor(Math.random() * games.length)];
-        alert(`You should play: ${random.title}`);
-    };
-
     return (
         <div className="container">
             <header>
@@ -172,7 +169,7 @@ function App() {
                         <option value="false">Not Played</option>
                     </select>
 
-                    <button className="btn-action" onClick={pickRandomGame}>
+                    <button className="btn-action" onClick={() => setRandomOpen(true)}>
                         <Dice5 size={18} />
                         <span>Random</span>
                     </button>
@@ -183,7 +180,11 @@ function App() {
                     </button>
                 </div>
 
-                <button className="btn-action" style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', width: '100%', maxWidth: '900px', marginTop: '10px' }}>
+                <button
+                    className="btn-action"
+                    onClick={() => setStatsOpen(true)}
+                    style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', width: '100%', maxWidth: '900px', marginTop: '10px' }}
+                >
                     <BarChart2 size={18} />
                     <span>Statistics</span>
                 </button>
@@ -224,6 +225,15 @@ function App() {
                     onClose={closeGameForm}
                     onSave={handleSaveGame}
                     onDelete={handleDeleteGame}
+                />
+            )}
+
+            {statsOpen && <StatsModal onClose={() => setStatsOpen(false)} />}
+
+            {randomOpen && (
+                <RandomGameModal
+                    filters={filters}
+                    onClose={() => setRandomOpen(false)}
                 />
             )}
         </div>

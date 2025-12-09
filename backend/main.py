@@ -59,6 +59,12 @@ class UpdateGameModel(BaseModel):
     rating: Optional[int] = None
     deleted: Optional[bool] = None
 
+class PaginatedGameResponse(BaseModel):
+    items: List[GameModel]
+    total: int
+    skip: int
+    limit: int
+
 @app.on_event("startup")
 async def startup_db_client():
     app.mongodb_client = AsyncIOMotorClient(MONGO_URL)
@@ -73,12 +79,6 @@ async def shutdown_db_client():
 @app.get("/", tags=["Root"])
 async def read_root():
     return {"message": "GamesList API is running"}
-
-class PaginatedGameResponse(BaseModel):
-    items: List[GameModel]
-    total: int
-    skip: int
-    limit: int
 
 @app.get("/games", response_model=PaginatedGameResponse, tags=["Games"])
 async def list_games(
@@ -154,3 +154,71 @@ async def delete_game(id: str):
         
     raise HTTPException(status_code=404, detail=f"Game {id} not found")
 
+@app.get("/games/random", response_model=GameModel, tags=["Games"])
+async def get_random_game(
+    search: Optional[str] = None,
+    platform: Optional[str] = None,
+    genre: Optional[str] = None,
+    played: Optional[bool] = None,
+):
+    query = {"deleted": {"$ne": True}}
+    if search:
+        query["$or"] = [
+            {"title": {"$regex": search, "$options": "i"}},
+            {"custom_title": {"$regex": search, "$options": "i"}}
+        ]
+    if platform and platform != "all":
+        query["platforms"] = platform
+    if genre and genre != "all":
+        query["genres"] = genre
+    if played is not None:
+        query["played"] = played
+
+    # Use aggregation to sample 1 random document matches the query
+    pipeline = [
+        {"$match": query},
+        {"$sample": {"size": 1}}
+    ]
+    
+    cursor = app.mongodb[COLLECTION_NAME].aggregate(pipeline)
+    result = await cursor.to_list(length=1)
+    
+    if result:
+        return result[0]
+    
+    raise HTTPException(status_code=404, detail="No games found matching criteria")
+
+@app.get("/stats", tags=["Games"])
+async def get_stats():
+    # Pipeline to count total, played, platforms, genres
+    pipeline = [
+        {"$match": {"deleted": {"$ne": True}}},
+        {"$facet": {
+            "total": [{"$count": "count"}],
+            "played": [{"$match": {"played": True}}, {"$count": "count"}],
+            "platforms": [
+                {"$unwind": "$platforms"},
+                {"$group": {"_id": "$platforms", "count": {"$sum": 1}}},
+                {"$sort": {"count": -1}}
+            ],
+            "genres": [
+                {"$unwind": "$genres"},
+                {"$group": {"_id": "$genres", "count": {"$sum": 1}}},
+                {"$sort": {"count": -1}},
+                {"$limit": 15} # Top 15 genres
+            ]
+        }}
+    ]
+    
+    cursor = app.mongodb[COLLECTION_NAME].aggregate(pipeline)
+    result = await cursor.to_list(length=1)
+    
+    # Process result safely
+    stats = result[0]
+    
+    return {
+        "total": stats["total"][0]["count"] if stats["total"] else 0,
+        "played_count": stats["played"][0]["count"] if stats["played"] else 0,
+        "platforms": {item["_id"]: item["count"] for item in stats["platforms"]},
+        "genres": {item["_id"]: item["count"] for item in stats["genres"]}
+    }
