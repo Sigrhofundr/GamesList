@@ -92,7 +92,13 @@ const GameForm = ({ game, onClose, onSave, onDelete }) => {
                     </div>
 
                     <div className="form-group" style={{ marginBottom: '15px' }}>
-                        <label style={{ display: 'block', marginBottom: '5px', color: '#a0a0b0' }}>Rating (0-100)</label>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                            <label style={{ color: '#a0a0b0' }}>Rating (0-100)</label>
+                            <span style={{ fontWeight: 'bold', color: formData.rating === '' ? '#aaa' : '#fff' }}>
+                                {formData.rating === '' ? 'ND' : formData.rating}
+                            </span>
+                        </div>
+
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <input
                                 type="range"
@@ -101,37 +107,31 @@ const GameForm = ({ game, onClose, onSave, onDelete }) => {
                                 max="100"
                                 value={formData.rating === '' ? 0 : formData.rating}
                                 onChange={handleChange}
-                                style={{ flexGrow: 1, cursor: 'pointer' }}
+                                style={{ flexGrow: 1, cursor: 'pointer', height: '6px' }}
                             />
-                            <input
-                                type="number"
-                                name="rating"
-                                min="0"
-                                max="100"
-                                value={formData.rating}
-                                onChange={handleChange}
-                                placeholder="ND"
-                                style={{ width: '60px', textAlign: 'center', flexShrink: 0 }}
-                            />
+
                             <button
                                 type="button"
                                 onClick={() => setFormData(prev => ({ ...prev, rating: '' }))}
                                 title="Reset to ND"
                                 style={{
-                                    background: 'rgba(255,255,255,0.1)',
-                                    border: 'none',
-                                    color: '#aaa',
-                                    borderRadius: '5px',
+                                    background: 'rgba(255, 71, 87, 0.1)',
+                                    border: '1px solid rgba(255, 71, 87, 0.3)',
+                                    color: '#ff4757',
+                                    borderRadius: '8px',
                                     cursor: 'pointer',
                                     width: '36px',
                                     height: '36px',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    flexShrink: 0
+                                    flexShrink: 0,
+                                    transition: 'all 0.2s'
                                 }}
+                                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255, 71, 87, 0.2)'; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255, 71, 87, 0.1)'; }}
                             >
-                                <X size={16} />
+                                <X size={18} />
                             </button>
                         </div>
                     </div>
