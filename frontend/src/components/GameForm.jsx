@@ -22,7 +22,7 @@ const GameForm = ({ game, onClose, onSave, onDelete }) => {
                 custom_title: game.custom_title || '',
                 platforms: game.platforms.length > 0 ? game.platforms : ['Microsoft'],
                 genres: game.genres.join(', '),
-                rating: game.rating !== null ? game.rating : 0,
+                rating: game.rating !== null ? game.rating : '',
                 notes: game.notes || '',
                 played: game.played || false
             });
@@ -99,7 +99,7 @@ const GameForm = ({ game, onClose, onSave, onDelete }) => {
                                 name="rating"
                                 min="0"
                                 max="100"
-                                value={formData.rating || 0}
+                                value={formData.rating === '' ? 0 : formData.rating}
                                 onChange={handleChange}
                                 style={{ flexGrow: 1 }}
                             />
@@ -108,10 +108,26 @@ const GameForm = ({ game, onClose, onSave, onDelete }) => {
                                 name="rating"
                                 min="0"
                                 max="100"
-                                value={formData.rating || 0}
+                                value={formData.rating}
                                 onChange={handleChange}
+                                placeholder="ND"
                                 style={{ width: '60px', textAlign: 'center' }}
                             />
+                            <button
+                                type="button"
+                                onClick={() => setFormData(prev => ({ ...prev, rating: '' }))}
+                                title="Reset to ND"
+                                style={{
+                                    background: 'rgba(255,255,255,0.1)',
+                                    border: 'none',
+                                    color: '#aaa',
+                                    borderRadius: '5px',
+                                    cursor: 'pointer',
+                                    padding: '5px'
+                                }}
+                            >
+                                <X size={16} />
+                            </button>
                         </div>
                     </div>
 
