@@ -127,7 +127,8 @@ async def create_game(game: GameModel):
 
 @app.put("/games/{id}", response_model=GameModel, tags=["Games"])
 async def update_game(id: str, game_update: UpdateGameModel):
-    update_data = {k: v for k, v in game_update.model_dump().items() if v is not None}
+    # Use exclude_unset to distinguish between "missing" (do not update) and "null" (update to None)
+    update_data = game_update.model_dump(exclude_unset=True)
     
     if len(update_data) >= 1:
         update_result = await app.mongodb[COLLECTION_NAME].update_one(

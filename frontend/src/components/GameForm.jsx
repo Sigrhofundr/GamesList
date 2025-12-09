@@ -120,18 +120,21 @@ const GameForm = ({ game, onClose, onSave, onDelete }) => {
                                     color: '#ff4757',
                                     borderRadius: '8px',
                                     cursor: 'pointer',
-                                    width: '36px',
                                     height: '36px',
+                                    padding: '0 12px',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    justifyContent: 'center',
+                                    gap: '6px',
                                     flexShrink: 0,
-                                    transition: 'all 0.2s'
+                                    transition: 'all 0.2s',
+                                    fontSize: '0.8rem',
+                                    fontWeight: '600',
+                                    textTransform: 'uppercase'
                                 }}
                                 onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255, 71, 87, 0.2)'; }}
                                 onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255, 71, 87, 0.1)'; }}
                             >
-                                <X size={18} />
+                                <X size={14} /> Clear
                             </button>
                         </div>
                     </div>
