@@ -14,6 +14,9 @@ A local, serverless web application to organize and view your game collection fr
 -   **Full CRUD**: Add, Edit, and Delete games directly from the interface.
 -   **Game Form**: Comprehensive modal to edit Title, Platform, Genres, Rating (0-100), Notes, and Status.
 -   **Random Picker**: "Random Game" button helper to decide what to play next.
+-   **To Play List**: Mark games as "to play" and create a prioritized list with drag-and-drop reordering.
+-   **Game Details**: Add custom descriptions and release dates for each game.
+-   **DLC Management**: Automatically detect and filter DLC/expansion content (hidden by default).
 -   **Rich Visuals**: Local, high-quality platform logos and color-coded rating badges.
 
 ## Project Structure

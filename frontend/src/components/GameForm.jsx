@@ -14,7 +14,10 @@ const GameForm = ({ game, onClose, onSave, onDelete }) => {
         rating: 0,
         notes: '',
         played: false,
-        is_dlc: false
+        is_dlc: false,
+        to_play: false,
+        description: '',
+        release_date: ''
     });
 
     useEffect(() => {
@@ -28,7 +31,10 @@ const GameForm = ({ game, onClose, onSave, onDelete }) => {
                 rating: game.rating !== null ? game.rating : '',
                 notes: game.notes || '',
                 played: game.played || false,
-                is_dlc: game.is_dlc || false
+                is_dlc: game.is_dlc || false,
+                to_play: game.to_play || false,
+                description: game.description || '',
+                release_date: game.release_date || ''
             });
         }
     }, [game]);
@@ -192,6 +198,29 @@ const GameForm = ({ game, onClose, onSave, onDelete }) => {
                     </div>
 
                     <div className="form-group" style={{ marginBottom: '15px' }}>
+                        <label style={{ display: 'block', marginBottom: '5px', color: '#a0a0b0' }}>Description</label>
+                        <textarea
+                            name="description"
+                            value={formData.description || ''}
+                            onChange={handleChange}
+                            rows="3"
+                            placeholder="Brief description of the game..."
+                            style={{ width: '100%', minHeight: '60px', resize: 'vertical' }}
+                        />
+                    </div>
+
+                    <div className="form-group" style={{ marginBottom: '15px' }}>
+                        <label style={{ display: 'block', marginBottom: '5px', color: '#a0a0b0' }}>Release Date</label>
+                        <input
+                            type="date"
+                            name="release_date"
+                            value={formData.release_date || ''}
+                            onChange={handleChange}
+                            style={{ width: '100%' }}
+                        />
+                    </div>
+
+                    <div className="form-group" style={{ marginBottom: '15px' }}>
                         <label style={{ display: 'block', marginBottom: '5px', color: '#a0a0b0' }}>Notes</label>
                         <textarea
                             name="notes"
@@ -213,6 +242,19 @@ const GameForm = ({ game, onClose, onSave, onDelete }) => {
                             <span className="slider"></span>
                         </label>
                         <span style={{ fontSize: '0.9rem', color: '#aaa' }}>Is DLC/Expansion</span>
+                    </div>
+
+                    <div className="form-group" style={{ marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <label className="switch">
+                            <input
+                                type="checkbox"
+                                name="to_play"
+                                checked={formData.to_play}
+                                onChange={handleChange}
+                            />
+                            <span className="slider"></span>
+                        </label>
+                        <span style={{ fontSize: '0.9rem', color: '#aaa' }}>Add to "To Play" list</span>
                     </div>
 
                     <div className="form-group" style={{ marginBottom: '25px', display: 'flex', alignItems: 'center', gap: '10px' }}>

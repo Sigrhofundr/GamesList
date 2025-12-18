@@ -4,7 +4,8 @@ import GameGrid from './components/GameGrid';
 import GameForm from './components/GameForm';
 import StatsModal from './components/StatsModal';
 import RandomGameModal from './components/RandomGameModal';
-import { Pencil, Plus, Dice5, Download, BarChart2 } from 'lucide-react';
+import ToPlayList from './components/ToPlayList';
+import { Pencil, Plus, Dice5, Download, BarChart2, ListTodo } from 'lucide-react';
 import './index.css';
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
     const [genres, setGenres] = useState([]);
     const [statsOpen, setStatsOpen] = useState(false);
     const [randomOpen, setRandomOpen] = useState(false);
+    const [toPlayOpen, setToPlayOpen] = useState(false);
     const [editingGame, setEditingGame] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [totalGames, setTotalGames] = useState(0);
@@ -193,6 +195,11 @@ function App() {
                         <span style={{ fontSize: '0.9rem', whiteSpace: 'nowrap' }}>Show DLC</span>
                     </label>
 
+                    <button className="btn-action" onClick={() => setToPlayOpen(true)}>
+                        <ListTodo size={18} />
+                        <span>To Play</span>
+                    </button>
+
                     <button className="btn-action" onClick={() => setRandomOpen(true)}>
                         <Dice5 size={18} />
                         <span>Random</span>
@@ -258,6 +265,14 @@ function App() {
                 <RandomGameModal
                     filters={filters}
                     onClose={() => setRandomOpen(false)}
+                />
+            )}
+
+            {toPlayOpen && (
+                <ToPlayList
+                    isOpen={toPlayOpen}
+                    onClose={() => setToPlayOpen(false)}
+                    onUpdate={() => fetchGames(false)}
                 />
             )}
         </div>
