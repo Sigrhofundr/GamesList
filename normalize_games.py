@@ -18,6 +18,7 @@ def normalize_title(title):
     """
     Normalizes a game title for deduplication.
     Removes special characters, extra spaces, and converts to lowercase.
+    Also removes common edition suffixes for better matching.
     """
     if not title:
         return ""
@@ -25,7 +26,35 @@ def normalize_title(title):
     title = re.sub(r'[™®©]', '', title)
     # Remove special chars but keep alphanumeric and spaces
     title = re.sub(r'[^\w\s]', '', title)
-    return " ".join(title.lower().split())
+    
+    # Normalize to lowercase and clean whitespace
+    title = " ".join(title.lower().split())
+    
+    # Remove common edition suffixes for better deduplication
+    edition_patterns = [
+        r'\s+standard\s+edition$',
+        r'\s+deluxe\s+edition$',
+        r'\s+ultimate\s+edition$',
+        r'\s+gold\s+edition$',
+        r'\s+platinum\s+edition$',
+        r'\s+premium\s+edition$',
+        r'\s+complete\s+edition$',
+        r'\s+game\s+of\s+the\s+year\s+edition$',
+        r'\s+goty\s+edition$',
+        r'\s+definitive\s+edition$',
+        r'\s+enhanced\s+edition$',
+        r'\s+special\s+edition$',
+        r'\s+collectors\s+edition$',
+        r'\s+limited\s+edition$',
+        r'\s+digital\s+edition$',
+        r'\s+remastered$',
+        r'\s+redux$',
+    ]
+    
+    for pattern in edition_patterns:
+        title = re.sub(pattern, '', title, flags=re.IGNORECASE)
+    
+    return title.strip()
 
 def is_dlc(title):
     """
@@ -154,28 +183,39 @@ def process_gog(data, games_map):
 
 def process_ea(data, games_map):
     """Processes EA library data (from ea_library.json)."""
-    if not data:
+    if not data or 'library' not in data:
         return
     
-    # EA library is a simple list of games with title, platform, and acquired_date
-    for game in data:
+    # EA library includes title, device, and is_dlc fields
+    for game in data['library']:
         title = game.get('title')
         if not title:
             continue
         
         norm_title = normalize_title(title)
+        device = game.get('device', ['PC'])  # Get device from EA data
+        is_dlc_flag = game.get('is_dlc', False)  # Get DLC flag from EA data
         
         if norm_title not in games_map:
             games_map[norm_title] = {
                 'title': title,
                 'platforms': set(),
-                'device': ['PC'],
-                'is_dlc': is_dlc(title),
+                'device': device,
+                'is_dlc': is_dlc_flag,
                 'genres': set(),
                 'notes': "",
                 'played': False,
                 'rating': None
             }
+        else:
+            # If game exists, merge devices
+            existing_devices = set(games_map[norm_title].get('device', ['PC']))
+            new_devices = set(device)
+            games_map[norm_title]['device'] = sorted(list(existing_devices | new_devices))
+            
+            # Keep is_dlc as False if it was already False (base game takes precedence)
+            if not games_map[norm_title].get('is_dlc', False):
+                games_map[norm_title]['is_dlc'] = is_dlc_flag
         
         games_map[norm_title]['platforms'].add('EA')
         # EA export doesn't have genres, will need enrichment
@@ -246,10 +286,13 @@ def main():
     gog_data = load_json(files['GOG'])
     if gog_data: process_gog(gog_data, games_map)
     
-    # EA TEMPORANEAMENTE DISABILITATO - Riattivare dopo aver corretto lo script
-    # print(f"Loading EA ({ea_file})...")
-    # ea_data = load_json(files['EA'])
-    # if ea_data: process_ea(ea_data, games_map)
+    print(f"Loading EA ({ea_file})...")
+    ea_data = load_json(files['EA'])
+    if ea_data: 
+        process_ea(ea_data, games_map)
+        ea_total = len([g for g in ea_data.get('library', []) if not g.get('is_dlc', False)])
+        ea_dlc = len([g for g in ea_data.get('library', []) if g.get('is_dlc', False)])
+        print(f"Loaded {ea_total} EA base games + {ea_dlc} DLC.")
 
     # PROCESS MICROSOFT
     microsoft_file = env_vars.get('MICROSOFT_LIBRARY', 'microsoft_library.json')
