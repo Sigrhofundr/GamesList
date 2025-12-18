@@ -4,10 +4,11 @@ import os
 import sys
 
 # Configuration
-MONGO_URI = os.getenv("MONGO_URL", "mongodb://localhost:27017/")
+MONGO_URI = os.getenv("MONGO_URL", "mongodb://localhost:27019/")
 DB_NAME = os.getenv("MONGO_DB_NAME", "games_library")
 COLLECTION_NAME = "games"
-JSON_FILE = "merged_games.json"
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+JSON_FILE = os.path.join(base_dir, "merged_games.json")
 
 def migrate():
     if not os.path.exists(JSON_FILE):

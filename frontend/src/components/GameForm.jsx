@@ -9,6 +9,7 @@ const GameForm = ({ game, onClose, onSave, onDelete }) => {
         title: '',
         custom_title: '',
         platforms: ['Microsoft'],
+        device: ['PC'],
         genres: '',
         rating: 0,
         notes: '',
@@ -21,6 +22,7 @@ const GameForm = ({ game, onClose, onSave, onDelete }) => {
                 title: game.title,
                 custom_title: game.custom_title || '',
                 platforms: game.platforms.length > 0 ? game.platforms : ['Microsoft'],
+                device: game.device && game.device.length > 0 ? game.device : ['PC'],
                 genres: game.genres.join(', '),
                 rating: game.rating !== null ? game.rating : '',
                 notes: game.notes || '',
@@ -45,7 +47,8 @@ const GameForm = ({ game, onClose, onSave, onDelete }) => {
             genres: formData.genres.split(',').map(g => g.trim()).filter(g => g),
             rating: formData.rating === '' ? null : parseInt(formData.rating),
             // Ensure platform is an array
-            platforms: Array.isArray(formData.platforms) ? formData.platforms : [formData.platforms]
+            platforms: Array.isArray(formData.platforms) ? formData.platforms : [formData.platforms],
+            device: Array.isArray(formData.device) ? formData.device : [formData.device]
         };
 
         // If it's a new game, custom_title might not be needed if same as title, but let's keep it simple
@@ -75,7 +78,7 @@ const GameForm = ({ game, onClose, onSave, onDelete }) => {
                     </div>
 
                     <div className="form-group" style={{ marginBottom: '15px' }}>
-                        <label style={{ display: 'block', marginBottom: '5px', color: '#a0a0b0' }}>Platform</label>
+                        <label style={{ display: 'block', marginBottom: '5px', color: '#a0a0b0' }}>Platform (Store)</label>
                         <select
                             name="platforms"
                             value={formData.platforms[0] || 'Microsoft'}
@@ -87,8 +90,43 @@ const GameForm = ({ game, onClose, onSave, onDelete }) => {
                             <option value="Amazon">Amazon</option>
                             <option value="GOG">GOG</option>
                             <option value="Microsoft">Microsoft</option>
+                            <option value="EA">EA</option>
                             <option value="Other">Other</option>
                         </select>
+                    </div>
+
+                    <div className="form-group" style={{ marginBottom: '15px' }}>
+                        <label style={{ display: 'block', marginBottom: '10px', color: '#a0a0b0' }}>Device (Gaming System)</label>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
+                            {['PC', 'PS3', 'PS4', 'PS5', 'Xbox 360', 'Xbox One', 'Xbox Series X/S', 'Switch'].map(deviceOption => (
+                                <label key={deviceOption} style={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    gap: '8px',
+                                    padding: '8px',
+                                    background: formData.device.includes(deviceOption) ? 'rgba(100,100,255,0.15)' : 'rgba(255,255,255,0.05)',
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s',
+                                    border: formData.device.includes(deviceOption) ? '1px solid rgba(100,100,255,0.4)' : '1px solid transparent'
+                                }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={formData.device.includes(deviceOption)}
+                                        onChange={(e) => {
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                device: e.target.checked 
+                                                    ? [...prev.device, deviceOption]
+                                                    : prev.device.filter(d => d !== deviceOption)
+                                            }));
+                                        }}
+                                        style={{ cursor: 'pointer' }}
+                                    />
+                                    <span style={{ fontSize: '0.9rem' }}>{deviceOption}</span>
+                                </label>
+                            ))}
+                        </div>
                     </div>
 
                     <div className="form-group" style={{ marginBottom: '15px' }}>

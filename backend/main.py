@@ -30,7 +30,8 @@ class GameModel(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     title: str
     custom_title: Optional[str] = None
-    platforms: List[str] = []
+    platforms: List[str] = []  # Stores/Providers: Steam, EA, Epic, etc.
+    device: List[str] = ["PC"]  # Gaming systems: PC, PS3, Xbox, etc.
     genres: List[str] = []
     notes: Optional[str] = ""
     played: bool = False

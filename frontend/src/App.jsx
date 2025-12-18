@@ -148,6 +148,7 @@ function App() {
                         <option value="Epic">Epic</option>
                         <option value="GOG">GOG</option>
                         <option value="Microsoft">Microsoft</option>
+                        <option value="EA">EA</option>
                     </select>
 
                     <select

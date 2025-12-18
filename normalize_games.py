@@ -47,6 +47,7 @@ def process_amazon(data, games_map):
             games_map[norm_title] = {
                 'title': title, # Keep the first title found as display title
                 'platforms': set(),
+                'device': ['PC'],  # Default to PC for all games
                 'genres': set(genres)
             }
         
@@ -106,11 +107,39 @@ def process_gog(data, games_map):
              games_map[norm_title] = {
                 'title': title,
                 'platforms': set(),
+                'device': ['PC'],
                 'genres': set(genres)
             }
         
         games_map[norm_title]['platforms'].add('GOG')
         games_map[norm_title]['genres'].update(genres)
+
+def process_ea(data, games_map):
+    """Processes EA library data (from ea_library.json)."""
+    if not data:
+        return
+    
+    # EA library is a simple list of games with title, platform, and acquired_date
+    for game in data:
+        title = game.get('title')
+        if not title:
+            continue
+        
+        norm_title = normalize_title(title)
+        
+        if norm_title not in games_map:
+            games_map[norm_title] = {
+                'title': title,
+                'platforms': set(),
+                'device': ['PC'],
+                'genres': set(),
+                'notes': "",
+                'played': False,
+                'rating': None
+            }
+        
+        games_map[norm_title]['platforms'].add('EA')
+        # EA export doesn't have genres, will need enrichment
 
 def main():
     # Use the script's directory as base (works on Windows, Linux, macOS)
@@ -131,11 +160,13 @@ def main():
     epic_file = env_vars.get('EPIC_LIBRARY', 'epic_library.json')
     gog_file = env_vars.get('GOG_LIBRARY', 'gog_library.json')
     steam_file = env_vars.get('STEAM_LIBRARY', 'steam_library.json')
+    ea_file = env_vars.get('EA_LIBRARY', 'ea_library.json')
 
     files = {
         'Amazon': os.path.join(base_dir, 'sources', amazon_file),
         'Epic': os.path.join(base_dir, 'sources', epic_file),
-        'GOG': os.path.join(base_dir, 'sources', gog_file)
+        'GOG': os.path.join(base_dir, 'sources', gog_file),
+        'EA': os.path.join(base_dir, 'sources', ea_file)
     }
     
     # Map: normalized_title -> {title, platforms, genres, notes, played}
@@ -156,6 +187,7 @@ def main():
                         'title': game.get('title'),
                         'custom_title': game.get('custom_title', None), # Preserved renamaing
                         'platforms': set(game.get('platforms', [])),
+                        'device': game.get('device', ['PC']),
                         'genres': set(game.get('genres', [])),
                         'notes': game.get('notes', ""),
                         'played': game.get('played', False),
@@ -173,6 +205,11 @@ def main():
     print(f"Loading GOG ({gog_file})...")
     gog_data = load_json(files['GOG'])
     if gog_data: process_gog(gog_data, games_map)
+    
+    # EA TEMPORANEAMENTE DISABILITATO - Riattivare dopo aver corretto lo script
+    # print(f"Loading EA ({ea_file})...")
+    # ea_data = load_json(files['EA'])
+    # if ea_data: process_ea(ea_data, games_map)
 
     # PROCESS MICROSOFT
     microsoft_file = env_vars.get('MICROSOFT_LIBRARY', 'microsoft_library.json')
@@ -189,6 +226,7 @@ def main():
                 games_map[norm_title] = {
                     'title': game_title,
                     'platforms': set(),
+                    'device': ['PC'],
                     'genres': set(), # No genres in MS export
                     'notes': "",
                     'played': False,
@@ -219,6 +257,7 @@ def main():
                              games_map[norm_title] = {
                                  'title': name,
                                  'platforms': set(),
+                                 'device': ['PC'],
                                  'genres': set(genres),
                                  'notes': "",
                                  'played': played,
