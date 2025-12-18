@@ -13,7 +13,8 @@ const GameForm = ({ game, onClose, onSave, onDelete }) => {
         genres: '',
         rating: 0,
         notes: '',
-        played: false
+        played: false,
+        is_dlc: false
     });
 
     useEffect(() => {
@@ -26,7 +27,8 @@ const GameForm = ({ game, onClose, onSave, onDelete }) => {
                 genres: game.genres.join(', '),
                 rating: game.rating !== null ? game.rating : '',
                 notes: game.notes || '',
-                played: game.played || false
+                played: game.played || false,
+                is_dlc: game.is_dlc || false
             });
         }
     }, [game]);
@@ -97,13 +99,13 @@ const GameForm = ({ game, onClose, onSave, onDelete }) => {
 
                     <div className="form-group" style={{ marginBottom: '15px' }}>
                         <label style={{ display: 'block', marginBottom: '10px', color: '#a0a0b0' }}>Device (Gaming System)</label>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', alignItems: 'stretch' }}>
                             {['PC', 'PS3', 'PS4', 'PS5', 'Xbox 360', 'Xbox One', 'Xbox Series X/S', 'Switch'].map(deviceOption => (
                                 <label key={deviceOption} style={{ 
                                     display: 'flex', 
                                     alignItems: 'center', 
                                     gap: '8px',
-                                    padding: '8px',
+                                    padding: '10px',
                                     background: formData.device.includes(deviceOption) ? 'rgba(100,100,255,0.15)' : 'rgba(255,255,255,0.05)',
                                     borderRadius: '6px',
                                     cursor: 'pointer',
@@ -121,9 +123,9 @@ const GameForm = ({ game, onClose, onSave, onDelete }) => {
                                                     : prev.device.filter(d => d !== deviceOption)
                                             }));
                                         }}
-                                        style={{ cursor: 'pointer' }}
+                                        style={{ cursor: 'pointer', margin: 0 }}
                                     />
-                                    <span style={{ fontSize: '0.9rem' }}>{deviceOption}</span>
+                                    <span style={{ fontSize: '0.85rem' }}>{deviceOption}</span>
                                 </label>
                             ))}
                         </div>
@@ -198,6 +200,19 @@ const GameForm = ({ game, onClose, onSave, onDelete }) => {
                             rows="4"
                             style={{ width: '100%', minHeight: '80px', resize: 'vertical' }}
                         />
+                    </div>
+
+                    <div className="form-group" style={{ marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <label className="switch">
+                            <input
+                                type="checkbox"
+                                name="is_dlc"
+                                checked={formData.is_dlc}
+                                onChange={handleChange}
+                            />
+                            <span className="slider"></span>
+                        </label>
+                        <span style={{ fontSize: '0.9rem', color: '#aaa' }}>Is DLC/Expansion</span>
                     </div>
 
                     <div className="form-group" style={{ marginBottom: '25px', display: 'flex', alignItems: 'center', gap: '10px' }}>

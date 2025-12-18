@@ -27,6 +27,41 @@ def normalize_title(title):
     title = re.sub(r'[^\w\s]', '', title)
     return " ".join(title.lower().split())
 
+def is_dlc(title):
+    """
+    Check if a game title indicates it's DLC/expansion content.
+    Returns True if DLC, False otherwise.
+    """
+    if not title:
+        return False
+    
+    title_lower = title.lower()
+    
+    # Patterns to EXCLUDE from DLC detection (these are full games)
+    exclude_patterns = [
+        r'party\s+pack',  # Jackbox Party Pack series
+        r'commander\s+pack',  # Total Annihilation Commander Pack
+    ]
+    
+    for exclude_pattern in exclude_patterns:
+        if re.search(exclude_pattern, title_lower):
+            return False
+    
+    # Patterns that indicate DLC/expansion content
+    dlc_patterns = [
+        r'\b(dlc|expansion)\b',  # Explicit DLC/expansion mentions
+        r'season\s+pass',  # Season pass
+        r':\s+(soundtrack|ost|artbook|wallpaper)',  # After colon (bonus content)
+        r'(scenario|content|voice|map|expansion|dlc)\s+pack',  # Specific pack types
+        r'\d+\s+dlc',  # "5 DLC" patterns
+    ]
+    
+    for pattern in dlc_patterns:
+        if re.search(pattern, title_lower):
+            return True
+    
+    return False
+
 def process_amazon(data, games_map):
     """Processes Amazon library data."""
     if not data or 'library' not in data:
@@ -48,6 +83,7 @@ def process_amazon(data, games_map):
                 'title': title, # Keep the first title found as display title
                 'platforms': set(),
                 'device': ['PC'],  # Default to PC for all games
+                'is_dlc': is_dlc(title),
                 'genres': set(genres)
             }
         
@@ -108,6 +144,8 @@ def process_gog(data, games_map):
                 'title': title,
                 'platforms': set(),
                 'device': ['PC'],
+                'is_dlc': is_dlc(title),
+                'is_dlc': is_dlc(title),
                 'genres': set(genres)
             }
         
@@ -132,6 +170,7 @@ def process_ea(data, games_map):
                 'title': title,
                 'platforms': set(),
                 'device': ['PC'],
+                'is_dlc': is_dlc(title),
                 'genres': set(),
                 'notes': "",
                 'played': False,
@@ -188,6 +227,7 @@ def main():
                         'custom_title': game.get('custom_title', None), # Preserved renamaing
                         'platforms': set(game.get('platforms', [])),
                         'device': game.get('device', ['PC']),
+                        'is_dlc': game.get('is_dlc', False),
                         'genres': set(game.get('genres', [])),
                         'notes': game.get('notes', ""),
                         'played': game.get('played', False),
@@ -227,6 +267,7 @@ def main():
                     'title': game_title,
                     'platforms': set(),
                     'device': ['PC'],
+                    'is_dlc': is_dlc(game_title),
                     'genres': set(), # No genres in MS export
                     'notes': "",
                     'played': False,
@@ -258,6 +299,7 @@ def main():
                                  'title': name,
                                  'platforms': set(),
                                  'device': ['PC'],
+                                 'is_dlc': is_dlc(name),
                                  'genres': set(genres),
                                  'notes': "",
                                  'played': played,

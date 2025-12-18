@@ -36,6 +36,7 @@ class GameModel(BaseModel):
     notes: Optional[str] = ""
     played: bool = False
     rating: Optional[int] = None
+    is_dlc: bool = False  # Indicates if this is DLC/Expansion content
     deleted: Optional[bool] = False
 
     class Config:
@@ -87,6 +88,7 @@ async def list_games(
     platform: Optional[str] = None,
     genre: Optional[str] = None,
     played: Optional[bool] = None,
+    include_dlc: bool = False,
     skip: int = 0,
     limit: int = 100
 ):
@@ -107,6 +109,10 @@ async def list_games(
         
     if played is not None:
         query["played"] = played
+    
+    # By default, exclude DLC unless explicitly requested
+    if not include_dlc:
+        query["is_dlc"] = {"$ne": True}
 
     total = await app.mongodb[COLLECTION_NAME].count_documents(query)
     games_cursor = app.mongodb[COLLECTION_NAME].find(query).skip(skip).limit(limit)
