@@ -1,13 +1,65 @@
+# Generated files
 merged_games.json
 merged_games.js
 manual_enrich.py
+
+# Personal game libraries (sensible data)
 sources/*.json
 !sources/example_library.json
 !sources/steam_library.json.example
+
+# Environment variables and secrets
 .env
+.env.local
+.env.*.local
+*.key
+*.pem
+
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+*.egg-info/
+
+# Node.js
+node_modules/
+dist/
+build/
+.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Docker
+.dockerignore
+
+# MongoDB data (if running locally without Docker)
+data/
+mongo_data/
+*.lock
+
+# Logs
+logs/
+*.log
+
+# Output files
 output.txt
 verify_result.txt
 unknowns_result.txt
 verification.txt
+
+# Backup files
+*.backup
+*.bak
+*~
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store

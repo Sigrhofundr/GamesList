@@ -113,7 +113,8 @@ def process_gog(data, games_map):
         games_map[norm_title]['genres'].update(genres)
 
 def main():
-    base_dir = '/mnt/secondisk/dev/GamesList'
+    # Use the script's directory as base (works on Windows, Linux, macOS)
+    base_dir = os.path.dirname(os.path.abspath(__file__))
     # Load .env file
     env_path = os.path.join(base_dir, '.env')
     env_vars = {}

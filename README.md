@@ -47,6 +47,33 @@ A local, serverless web application to organize and view your game collection fr
     > [!IMPORTANT]
     > **After overwriting the JSON file**, you must run `python3 normalize_games.py` again! This step is crucial to update the `merged_games.js` file used by the browser and to align your edits with the source data.
 
+## Docker Deployment (Recommended)
+
+### Quick Start
+1. **Configure Environment**:
+   ```bash
+   cp .env.example .env
+   # Edit .env if needed (default values should work)
+   ```
+
+2. **Run with Docker Compose**:
+   ```bash
+   docker-compose up --build
+   ```
+
+3. **Access the Application**:
+   - Frontend: http://localhost:8090
+   - Backend API: http://localhost:5000
+   - MongoDB: localhost:27019
+
+### Port Configuration
+The default ports are:
+- MongoDB: 27019 (mapped to avoid conflicts with local MongoDB instances)
+- Backend: 5000
+- Frontend: 8090
+
+If you need to change these ports, edit the [docker-compose.yml](docker-compose.yml) file.
+
 ## How to Update Your Library
 
 ### 1. Configure the Project

@@ -69,7 +69,8 @@ def get_steam_genres(title):
     return genres
 
 def main():
-    base_dir = '/mnt/secondisk/dev/GamesList'
+    # Use the script's directory as base (works on Windows, Linux, macOS)
+    base_dir = os.path.dirname(os.path.abspath(__file__))
     json_path = os.path.join(base_dir, 'merged_games.json')
     
     games = load_json(json_path)
