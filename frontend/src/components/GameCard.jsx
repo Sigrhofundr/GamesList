@@ -17,6 +17,7 @@ const GameCard = ({ game, onEdit, onTogglePlayed }) => {
         else if (p.includes('gog')) iconSrc = '/logos/gog.png';
         else if (p.includes('amazon')) iconSrc = '/logos/amazon.png';
         else if (p.includes('microsoft')) iconSrc = '/logos/microsoft_logo.png';
+        else if (p.includes('ea')) iconSrc = '/logos/ea.png';
 
         if (iconSrc) {
             return (
@@ -53,6 +54,20 @@ const GameCard = ({ game, onEdit, onTogglePlayed }) => {
                 <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', marginBottom: '10px' }}>
                     {game.platforms.map(p => getPlatformIcon(p))}
                 </div>
+                {game.device && game.device.length > 0 && (
+                    <div style={{ display: 'flex', gap: '5px', marginBottom: '8px', fontSize: '0.75rem' }}>
+                        {game.device.map(d => (
+                            <span key={d} style={{ 
+                                padding: '2px 8px', 
+                                background: 'rgba(100,100,255,0.2)', 
+                                borderRadius: '3px',
+                                color: '#aabbff'
+                            }}>
+                                {d}
+                            </span>
+                        ))}
+                    </div>
+                )}
                 <div className="genres-list">
                     {game.genres.slice(0, 3).map(g => (
                         <span key={g} className={`genre-tag ${g === 'Sconosciuto' ? 'sconosciuto' : ''}`}>

@@ -14,6 +14,9 @@ A local, serverless web application to organize and view your game collection fr
 -   **Full CRUD**: Add, Edit, and Delete games directly from the interface.
 -   **Game Form**: Comprehensive modal to edit Title, Platform, Genres, Rating (0-100), Notes, and Status.
 -   **Random Picker**: "Random Game" button helper to decide what to play next.
+-   **To Play List**: Mark games as "to play" and create a prioritized list with drag-and-drop reordering.
+-   **Game Details**: Add custom descriptions and release dates for each game.
+-   **DLC Management**: Automatically detect and filter DLC/expansion content (hidden by default).
 -   **Rich Visuals**: Local, high-quality platform logos and color-coded rating badges.
 
 ## Project Structure
@@ -117,7 +120,102 @@ Open a terminal in the project folder and run:
     *This searches Steam for missing genres. It skips games marked as "Unknown" to save time.*
 
 3.  **Done!** Open `index.html` to view your library.
+## Python Scripts Reference
 
+### Core Scripts
+
+#### `normalize_games.py`
+Main script that merges game libraries from multiple sources into a unified database.
+- **Purpose**: Consolidates games from Steam, Epic, GOG, Amazon, Microsoft, and EA into a single JSON file
+- **Features**:
+  - Normalizes game titles (removes special characters, converts to lowercase)
+  - Preserves manual edits (custom titles, notes, ratings, played status)
+  - Handles duplicate detection across platforms
+  - Adds `device` field (PC, PS3, PS4, PS5, Xbox, Switch)
+  - Generates both `merged_games.json` (for backend) and `merged_games.js` (for standalone HTML viewer)
+- **Usage**: `python normalize_games.py`
+- **Input**: JSON files in `sources/` directory
+- **Output**: `merged_games.json`, `merged_games.js`
+
+#### `enrich_games.py`
+Enriches game data by fetching missing genres from the Steam API.
+- **Purpose**: Automatically populate genre information for games without genres
+- **Features**:
+  - Searches Steam Store API by game title
+  - Adds genre tags to games
+  - Skips games already marked as "Sconosciuto" (Unknown)
+  - Rate-limited to avoid API throttling
+- **Usage**: `python enrich_games.py`
+- **Input**: `merged_games.json`
+- **Output**: Updated `merged_games.json` with enriched genres
+
+### Backend Scripts
+
+#### `backend/main.py`
+FastAPI backend server providing REST API for game management.
+- **Purpose**: Provides CRUD operations for games with MongoDB persistence
+- **Endpoints**:
+  - `GET /games` - List all games with filters
+  - `POST /games` - Create new game
+  - `PUT /games/{id}` - Update game
+  - `DELETE /games/{id}` - Delete game
+  - `GET /stats` - Library statistics
+- **Usage**: Runs automatically via Docker Compose (port 5000)
+
+#### `backend/migrate_to_mongo.py`
+Migrates data from JSON file to MongoDB database.
+- **Purpose**: Synchronize `merged_games.json` with MongoDB
+- **Features**:
+  - Drops existing collection for clean migration
+  - Validates connection to MongoDB
+  - Preserves all game data and metadata
+- **Usage**: `python backend/migrate_to_mongo.py`
+- **Requirements**: MongoDB running on port 27019
+
+### Utility Scripts
+
+#### `find_unknowns.py`
+Identifies games with unknown or missing genre information.
+- **Purpose**: Generate a report of games that need genre enrichment
+- **Usage**: `python find_unknowns.py`
+- **Output**: `unknowns_result.txt` with list of games missing genres
+
+#### `verify_enrich.py`
+Validates the genre enrichment process results.
+- **Purpose**: Check which games were successfully enriched with genres
+- **Usage**: `python verify_enrich.py`
+- **Output**: `verify_result.txt` with enrichment statistics
+
+#### `add_device_field.py`
+One-time migration script to add the `device` field to existing games.
+- **Purpose**: Updates all games in `merged_games.json` with `device: ["PC"]` field
+- **Usage**: `python add_device_field.py` (run once after device field introduction)
+- **Note**: This was used for the initial schema migration and may not be needed again
+
+### EA Games Processing Scripts
+
+#### `process_ea_games.py`
+Processes EA games CSV export and cleans the data.
+- **Purpose**: Parse EA library CSV, remove suffixes, identify DLC vs base games
+- **Features**:
+  - Removes "-WW", "™", "®" and other suffixes
+  - Converts ALL CAPS titles to Title Case
+  - Identifies potential DLC entries
+- **Usage**: `python process_ea_games.py`
+- **Input**: EA CSV export file
+- **Output**: `ea_processed.json`
+
+#### `finalize_ea_games.py`
+Applies manual corrections to processed EA games.
+- **Purpose**: Final cleanup and correction of EA game titles
+- **Usage**: `python finalize_ea_games.py`
+- **Note**: Currently EA import is disabled pending corrections
+
+#### `remove_ea_games.py`
+Removes all EA games from the database.
+- **Purpose**: Clean removal of EA platform games
+- **Usage**: `python remove_ea_games.py`
+- **Note**: Used for rollback after incorrect EA import
 ## Credits & API
 -   **Steam API**: Used for fetching game usage data and genre information.
 -   **Heroic Games Launcher**: Used for exporting libraries from other platforms. 

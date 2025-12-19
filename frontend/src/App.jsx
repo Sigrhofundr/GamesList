@@ -4,7 +4,8 @@ import GameGrid from './components/GameGrid';
 import GameForm from './components/GameForm';
 import StatsModal from './components/StatsModal';
 import RandomGameModal from './components/RandomGameModal';
-import { Pencil, Plus, Dice5, Download, BarChart2 } from 'lucide-react';
+import ToPlayList from './components/ToPlayList';
+import { Pencil, Plus, Dice5, Download, BarChart2, ListTodo } from 'lucide-react';
 import './index.css';
 
 function App() {
@@ -14,11 +15,13 @@ function App() {
         search: '',
         platform: 'all',
         genre: 'all',
-        played: 'all'
+        played: 'all',
+        includeDLC: false  // Hide DLC by default
     });
     const [genres, setGenres] = useState([]);
     const [statsOpen, setStatsOpen] = useState(false);
     const [randomOpen, setRandomOpen] = useState(false);
+    const [toPlayOpen, setToPlayOpen] = useState(false);
     const [editingGame, setEditingGame] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [totalGames, setTotalGames] = useState(0);
@@ -36,11 +39,13 @@ function App() {
             if (filters.platform !== 'all') params.platform = filters.platform;
             if (filters.genre !== 'all') params.genre = filters.genre;
             if (filters.played !== 'all') params.played = filters.played === 'true';
+            params.include_dlc = filters.includeDLC;  // Pass DLC filter to backend
 
             const response = await api.get('/games', { params });
 
             // Response structure: { items: [], total: 1000, skip: 0, limit: 100 }
             const newGames = response.data.items;
+            
             setTotalGames(response.data.total);
 
             if (isLoadMore) {
@@ -148,6 +153,7 @@ function App() {
                         <option value="Epic">Epic</option>
                         <option value="GOG">GOG</option>
                         <option value="Microsoft">Microsoft</option>
+                        <option value="EA">EA</option>
                     </select>
 
                     <select
@@ -168,6 +174,31 @@ function App() {
                         <option value="true">Played</option>
                         <option value="false">Not Played</option>
                     </select>
+
+                    <label style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '8px',
+                        padding: '8px 12px',
+                        background: 'rgba(255,255,255,0.05)',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        border: filters.includeDLC ? '1px solid rgba(100,100,255,0.4)' : '1px solid transparent'
+                    }}>
+                        <input
+                            type="checkbox"
+                            checked={filters.includeDLC}
+                            onChange={(e) => handleFilterChange('includeDLC', e.target.checked)}
+                            style={{ cursor: 'pointer' }}
+                        />
+                        <span style={{ fontSize: '0.9rem', whiteSpace: 'nowrap' }}>Show DLC</span>
+                    </label>
+
+                    <button className="btn-action" onClick={() => setToPlayOpen(true)}>
+                        <ListTodo size={18} />
+                        <span>To Play</span>
+                    </button>
 
                     <button className="btn-action" onClick={() => setRandomOpen(true)}>
                         <Dice5 size={18} />
@@ -234,6 +265,14 @@ function App() {
                 <RandomGameModal
                     filters={filters}
                     onClose={() => setRandomOpen(false)}
+                />
+            )}
+
+            {toPlayOpen && (
+                <ToPlayList
+                    isOpen={toPlayOpen}
+                    onClose={() => setToPlayOpen(false)}
+                    onUpdate={() => fetchGames(false)}
                 />
             )}
         </div>

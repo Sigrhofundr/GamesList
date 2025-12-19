@@ -63,3 +63,6 @@ verification.txt
 *.swp
 *.swo
 .DS_Store
+dlc_identification_report.txt
+sources/eagames.CSV
+ea_games_processed.json

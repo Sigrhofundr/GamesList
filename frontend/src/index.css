@@ -559,3 +559,121 @@ input:checked+.slider:before {
   padding: 10px;
   border-radius: 8px;
 }
+
+/* To Play List */
+.to-play-modal {
+  max-width: 700px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.to-play-modal .modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.to-play-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+}
+
+.to-play-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  transition: all 0.2s;
+  cursor: move;
+}
+
+.to-play-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(124, 92, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.to-play-item.dragging {
+  opacity: 0.5;
+  transform: scale(0.95);
+}
+
+.drag-handle {
+  color: #666;
+  cursor: grab;
+  transition: color 0.2s;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.to-play-item:hover .drag-handle {
+  color: #aaa;
+}
+
+.to-play-rank {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--primary-accent);
+  min-width: 40px;
+  text-align: center;
+}
+
+.to-play-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.to-play-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.to-play-platforms {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.platform-badge-small {
+  padding: 2px 8px;
+  font-size: 0.7rem;
+  background: rgba(124, 92, 255, 0.2);
+  border: 1px solid rgba(124, 92, 255, 0.3);
+  border-radius: 4px;
+  color: #bbb;
+}
+
+.remove-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 71, 87, 0.3);
+  color: #ff4757;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remove-btn:hover {
+  background: rgba(255, 71, 87, 0.1);
+  border-color: #ff4757;
+}
+
+.modal-footer {
+  padding: 15px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.2);
+}
