@@ -144,10 +144,71 @@ Enriches game data by fetching missing genres from the Steam API.
   - Searches Steam Store API by game title
   - Adds genre tags to games
   - Skips games already marked as "Sconosciuto" (Unknown)
-  - Rate-limited to avoid API throttling
+  - Rate-limited to avoid API throttling (1.5s between requests)
+  - Auto-saves progress every 10 games
+  - Safe interruption with Ctrl+C
 - **Usage**: `python enrich_games.py`
 - **Input**: `merged_games.json`
 - **Output**: Updated `merged_games.json` with enriched genres
+
+#### `enrich_descriptions.py`
+Fetches short descriptions for games from the Steam API.
+- **Purpose**: Add brief game descriptions (max 2 sentences, 250 characters)
+- **Features**:
+  - Prioritizes Steam's `short_description` field
+  - Falls back to `detailed_description` with HTML tag removal
+  - Truncates to 2 sentences maximum
+  - Skips "Coming soon" games without descriptions
+  - Rate-limited (1.5s between requests)
+  - Auto-saves progress every 10 games
+  - Tracks statistics (updated, skipped, not found)
+- **Usage**: `python enrich_descriptions.py`
+- **Input**: `merged_games.json`
+- **Output**: Updated `merged_games.json` with description field populated
+- **Example Output**: 
+  ```
+  Processed 1652 games
+  Updated: 1331, Skipped: 0, Not found: 321
+  ```
+
+#### `enrich_release_dates.py`
+Fetches and normalizes release dates from the Steam API.
+- **Purpose**: Add release date information in ISO format (YYYY-MM-DD)
+- **Features**:
+  - Parses multiple Steam date formats ("10 Apr, 2023", "Apr 10, 2023", "2023")
+  - Converts all dates to ISO format (YYYY-MM-DD)
+  - Handles year-only dates (defaults to YYYY-01-01)
+  - Skips "Coming soon" and "TBA" entries
+  - Rate-limited (1.5s between requests)
+  - Auto-saves progress every 10 games
+  - Tracks statistics (updated, skipped, not found)
+- **Usage**: `python enrich_release_dates.py`
+- **Input**: `merged_games.json`
+- **Output**: Updated `merged_games.json` with release_date field populated
+- **Date Format Examples**:
+  - "10 Apr, 2023" → "2023-04-10"
+  - "2023" → "2023-01-01"
+
+#### `enrich_all.py`
+Unified enrichment script that runs all enrichment functions in sequence.
+- **Purpose**: One-command enrichment for genres, descriptions, and release dates
+- **Features**:
+  - Calls `enrich_games()`, `enrich_descriptions()`, and `enrich_release_dates()` in a single pass
+  - Comprehensive statistics for all three enrichment types
+  - Auto-saves progress every 10 games
+  - Rate-limited across all enrichment types
+  - Single progress bar for all operations
+- **Usage**: `python enrich_all.py`
+- **Input**: `merged_games.json`
+- **Output**: Updated `merged_games.json` with all enrichable fields populated
+- **Recommended**: Use this script instead of running each enrichment script separately
+- **Example Output**:
+  ```
+  === Enrichment Complete ===
+  Genres - Updated: 245, Skipped: 1200, Not found: 207
+  Descriptions - Updated: 1331, Skipped: 0, Not found: 321
+  Release Dates - Updated: 1425, Skipped: 50, Not found: 177
+  ```
 
 ### Backend Scripts
 
@@ -216,6 +277,16 @@ Removes all EA games from the database.
 - **Purpose**: Clean removal of EA platform games
 - **Usage**: `python remove_ea_games.py`
 - **Note**: Used for rollback after incorrect EA import
+## Deployment
+
+For detailed instructions on deploying updates to your Raspberry Pi production environment, see [DEPLOYMENT.md](DEPLOYMENT.md).
+
+Quick deployment workflow:
+1. **PC**: Commit and push code changes to GitHub
+2. **PC**: Transfer `merged_games.json` via SCP
+3. **Raspberry Pi**: Pull code, rebuild containers, migrate database
+4. **Verify**: Check logs and test endpoints
+
 ## Credits & API
 -   **Steam API**: Used for fetching game usage data and genre information.
 -   **Heroic Games Launcher**: Used for exporting libraries from other platforms. 
