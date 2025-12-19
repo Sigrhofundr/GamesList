@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from './api';
 import GameGrid from './components/GameGrid';
 import GameForm from './components/GameForm';
+import GameDetailModal from './components/GameDetailModal';
 import StatsModal from './components/StatsModal';
 import RandomGameModal from './components/RandomGameModal';
 import ToPlayList from './components/ToPlayList';
@@ -24,6 +25,8 @@ function App() {
     const [toPlayOpen, setToPlayOpen] = useState(false);
     const [editingGame, setEditingGame] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [detailGame, setDetailGame] = useState(null);
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [totalGames, setTotalGames] = useState(0);
 
     // Load Games
@@ -98,6 +101,21 @@ function App() {
     const closeGameForm = () => {
         setEditingGame(null);
         setIsModalOpen(false);
+    };
+
+    const openDetailModal = (game) => {
+        setDetailGame(game);
+        setIsDetailModalOpen(true);
+    };
+
+    const closeDetailModal = () => {
+        setDetailGame(null);
+        setIsDetailModalOpen(false);
+    };
+
+    const openEditFromDetail = (game) => {
+        closeDetailModal();
+        openGameForm(game);
     };
 
     const handleSaveGame = async (gameData) => {
@@ -231,6 +249,7 @@ function App() {
                 loading={loading && games.length === 0}
                 onEdit={openGameForm}
                 onTogglePlayed={togglePlayed}
+                onViewDetails={openDetailModal}
             />
 
             {games.length < totalGames && (
@@ -273,6 +292,14 @@ function App() {
                     isOpen={toPlayOpen}
                     onClose={() => setToPlayOpen(false)}
                     onUpdate={() => fetchGames(false)}
+                />
+            )}
+
+            {isDetailModalOpen && (
+                <GameDetailModal
+                    game={detailGame}
+                    onClose={closeDetailModal}
+                    onEdit={openEditFromDetail}
                 />
             )}
         </div>

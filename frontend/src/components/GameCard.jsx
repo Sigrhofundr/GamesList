@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pencil } from 'lucide-react';
 
-const GameCard = ({ game, onEdit, onTogglePlayed }) => {
+const GameCard = ({ game, onEdit, onTogglePlayed, onViewDetails }) => {
     const getRatingColor = (value) => {
         if (value === null || value === undefined) return "#333";
         const hue = Math.floor((value / 100) * 120);
@@ -39,12 +39,19 @@ const GameCard = ({ game, onEdit, onTogglePlayed }) => {
             <div
                 className="rating-badge"
                 style={{ background: ratingBg }}
-                onClick={() => onEdit(game)}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit(game);
+                }}
             >
                 {ratingDisplay}
             </div>
 
-            <div className="game-header">
+            <div 
+                className="game-header" 
+                onClick={() => onViewDetails(game)}
+                style={{ cursor: 'pointer' }}
+            >
                 <div className="game-title" title={displayTitle}>
                     {displayTitle}
                 </div>
@@ -97,7 +104,10 @@ const GameCard = ({ game, onEdit, onTogglePlayed }) => {
             <button
                 className="action-btn-icon"
                 title="Edit Details"
-                onClick={() => onEdit(game)}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit(game);
+                }}
                 style={{
                     position: 'absolute',
                     bottom: '15px',
